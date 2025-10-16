@@ -49,7 +49,7 @@ with st.form("add_trip_form"):
             pd.DataFrame([{"From": from_loc, "To": to_loc, "Roundtrip": roundtrip, "Mode": mode}])
         ], ignore_index=True)
 
-st.subheader("Trips added")
+st.subheader("Trips added (this session)")
 st.dataframe(st.session_state.trips_df)
 
 # --- CO₂ factors ---
@@ -61,7 +61,35 @@ co2_factors = {
     "Other": 0.15
 }
 
-# --- Submit all trips and calculate CO₂ ---
+# --- Function to calculate CO₂ per row ---
+def calc_co2(row):
+    try:
+        distance = geodesic(row["From"], row["To"]).km
+    except:
+        distance = 500  # fallback if geopy can't resolve
+    if row["Roundtrip"]:
+        distance *= 2
+    return distance * co2_factors.get(row["Mode"], 0.15)
+
+# --- Fetch all data from Google Sheet for plotting ---
+all_records = pd.DataFrame(sheet.get_all_records())
+
+if not all_records.empty:
+    # Ensure CO2_kg column exists
+    if "CO2_kg" not in all_records.columns:
+        all_records["CO2_kg"] = all_records.apply(calc_co2, axis=1)
+    co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
+    ax.set_ylabel("CO₂ Emissions (kg)")
+    ax.set_title("Total CO₂ per Role (from all submissions)")
+    st.pyplot(fig)
+else:
+    st.info("No trips submitted yet.")
+
+# --- Submit new trips ---
 if st.button("Submit all trips"):
     if st.session_state.trips_df.empty:
         st.warning("Please add at least one trip before submitting!")
@@ -70,35 +98,15 @@ if st.button("Submit all trips"):
         df = st.session_state.trips_df.copy()
         df["Role"] = role
         df["Timestamp"] = timestamp
-
-        # Calculate distances & CO₂
-        def calc_co2(row):
-            try:
-                loc1 = geodesic(row["From"], row["To"]).km
-            except:
-                loc1 = 500  # fallback if geopy can't resolve
-            distance = loc1
-            if row["Roundtrip"]:
-                distance *= 2
-            return distance * co2_factors.get(row["Mode"], 0.15)
-
         df["CO2_kg"] = df.apply(calc_co2, axis=1)
 
-        # Append rows to Google Sheet
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
         sheet.append_rows(rows)
 
         st.success("✅ Trips submitted!")
 
-        # --- Plot CO₂ per role ---
-        all_data = pd.DataFrame(sheet.get_all_records())
-        co2_per_role = all_data.groupby("Role")["CO2_kg"].sum().reset_index()
-
-        fig, ax = plt.subplots()
-        ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
-        ax.set_ylabel("CO₂ Emissions (kg)")
-        ax.set_title("Total CO₂ per Role")
-        st.pyplot(fig)
-
         # Clear local trips
         st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
+
+        # Rerun to immediately update the plot
+        st.experimental_rerun()

@@ -4,3 +4,4 @@ plotly
 geopy
 gspread
 google-auth
+matplotlib

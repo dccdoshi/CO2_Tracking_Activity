@@ -108,5 +108,3 @@ if st.button("Submit all trips"):
         # Clear local trips
         st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
 
-        # Rerun to immediately update the plot
-        st.experimental_rerun()

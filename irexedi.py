@@ -32,7 +32,7 @@ if "trips_df" not in st.session_state:
 
 # --- Add new trip row ---
 with st.form("add_trip_form"):
-    col1, col2, col3, col4 = st.columns([3,3,1,2])
+    col1, col2, col3, col4 = st.columns([3,3,2,2])
     with col1:
         from_loc = st.text_input("From")
     with col2:

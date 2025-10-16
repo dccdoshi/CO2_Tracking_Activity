@@ -7,7 +7,7 @@ from datetime import datetime
 st.title("🌍 Institute Travel CO₂ Awareness App")
 
 # --- Streamlit Google Sheets connection ---
-SHEET_KEY = "YOUR_SHEET_ID_HERE"  # The part of your Sheet URL between /d/ and /edit
+SHEET_KEY = "1Zc4THpM4lFkQ2jOmi5mbn_U0eqHK3DBgLF86qH-JCms"  # The part of your Sheet URL between /d/ and /edit
 
 @st.cache_resource
 def connect_to_gsheet():

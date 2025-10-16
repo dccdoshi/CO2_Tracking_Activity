@@ -24,7 +24,7 @@ def connect_to_gsheet():
     # Load Google Cloud credentials from Streamlit secrets (see setup instructions below)
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/spreadsheets"]
+        scopes=["https://www.googleapis.com/auth/spreadsheets","https://www.googleapis.com/auth/drive"]
     )
     client = gspread.authorize(creds)
     sheet = client.open(SHEET_NAME).sheet1

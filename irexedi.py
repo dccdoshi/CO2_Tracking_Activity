@@ -30,7 +30,13 @@ def connect_to_gsheet():
     sheet = client.open(SHEET_NAME).sheet1
     return sheet
 
+st.write("Connecting to Google Sheet...")
 sheet = connect_to_gsheet()
+st.write("✅ Connected!")
+
+st.write("Loading data...")
+data = sheet.get_all_records()
+st.write("✅ Data loaded!")
 
 # --- Emission factors (kg CO₂ per passenger-km) ---
 factors = {

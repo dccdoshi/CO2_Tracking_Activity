@@ -6,7 +6,9 @@ from datetime import datetime
 from geopy.distance import geodesic
 import matplotlib.pyplot as plt
 from geopy.geocoders import Nominatim
-
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from pyproj import Geod
 
 st.title("🌍 Institute Travel CO₂ Awareness App")
 
@@ -101,6 +103,55 @@ if not all_records.empty:
     ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
     ax.set_ylabel("CO₂ Emissions (kg)")
     ax.set_title("Total CO₂ per Role (from all submissions)")
+    st.pyplot(fig)
+
+    # Geolocator
+    geolocator = Nominatim(user_agent="travel_co2_app")
+
+    # Map colors per role
+    role_colors = {
+        "Professor": "red",
+        "Postdoc": "blue",
+        "Grad Student": "green",
+        "Staff": "orange"
+    }
+
+    fig = plt.figure(figsize=(24, 12))
+    ax = plt.axes(projection=ccrs.Robinson())
+    ax.set_global()
+    ax.add_feature(cfeature.LAND, facecolor='lightgrey')
+    ax.add_feature(cfeature.OCEAN, facecolor='white')
+    ax.add_feature(cfeature.COASTLINE)
+    ax.add_feature(cfeature.BORDERS, linestyle=':')
+    ax.gridlines(draw_labels=False)
+
+    geod = Geod(ellps="WGS84")
+
+    for idx, row in all_records.iterrows():
+        try:
+            loc_from = geolocator.geocode(row["From"])
+            loc_to = geolocator.geocode(row["To"])
+            if loc_from and loc_to:
+                A = (loc_from.longitude, loc_from.latitude)
+                B = (loc_to.longitude, loc_to.latitude)
+
+                # Create intermediate points
+                npts = 50
+                intermediate = geod.npts(A[0], A[1], B[0], B[1], npts)
+                arc_lons = [A[0]] + [p[0] for p in intermediate] + [B[0]]
+                arc_lats = [A[1]] + [p[1] for p in intermediate] + [B[1]]
+
+                color = role_colors.get(row["Role"], "black")
+
+                # Plot arc
+                ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.7)
+                # Plot endpoints
+                ax.plot(A[0], A[1], 'o', transform=ccrs.Geodetic(), color=color)
+                ax.plot(B[0], B[1], 'o', transform=ccrs.Geodetic(), color=color)
+
+        except Exception as e:
+            print(f"Error geocoding row {idx}: {e}")
+
     st.pyplot(fig)
 else:
     st.info("No trips submitted yet.")

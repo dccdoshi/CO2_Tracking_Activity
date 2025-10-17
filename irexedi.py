@@ -11,6 +11,7 @@ import cartopy.feature as cfeature
 from pyproj import Geod
 
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
+st.title("Institute-Wide CO2 Emissions from Travel")
 
 # --- Role selection ---
 role = st.selectbox("Your role", ["Professor", "Postdoc", "Grad Student", "Staff"])
@@ -93,17 +94,6 @@ def calc_co2(row):
 all_records = pd.DataFrame(sheet.get_all_records())
 
 if not all_records.empty:
-    # Ensure CO2_kg column exists
-    if "CO2_kg" not in all_records.columns:
-        all_records["CO2_kg"] = all_records.apply(calc_co2, axis=1)
-    co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
-
-    # Plot
-    fig, ax = plt.subplots()
-    ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
-    ax.set_ylabel("CO₂ Emissions (kg)")
-    ax.set_title("Total CO₂ per Role (from all submissions)")
-    st.pyplot(fig)
 
     # Geolocator
     geolocator = Nominatim(user_agent="travel_co2_app")
@@ -153,6 +143,18 @@ if not all_records.empty:
             print(f"Error geocoding row {idx}: {e}")
 
     st.pyplot(fig,bbox_inches='tight',use_container_width=True)
+
+    # Ensure CO2_kg column exists
+    if "CO2_kg" not in all_records.columns:
+        all_records["CO2_kg"] = all_records.apply(calc_co2, axis=1)
+    co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(10,10))
+    ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
+    ax.set_ylabel("CO₂ Emissions (kg)")
+    ax.set_title("Total CO₂ per Role (from all submissions)")
+    st.pyplot(fig,use_container_width=False)
 else:
     st.info("No trips submitted yet.")
 

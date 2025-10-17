@@ -79,11 +79,12 @@ def calc_co2(row):
         distance = geodesic(coords_1, coords_2).kilometers
     except:
         st.warning("The city entered is mispelled, please try again!")  # fallback if geopy can't resolve
-    if row["Roundtrip"]:
-        distance *= 2
+
     co2_rate = co2_factors.get(row["Mode"])
     if distance>1000 and row["Mode"]=="Plane":
         co2_rate = 0.1
+    if row["Roundtrip"]:
+        distance *= 2
     return distance * co2_rate
 
 # --- Fetch all data from Google Sheet for plotting ---

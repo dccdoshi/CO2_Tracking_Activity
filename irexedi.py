@@ -5,6 +5,8 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 from geopy.distance import geodesic
 import matplotlib.pyplot as plt
+from geopy.geocoders import Nominatim
+
 
 st.title("🌍 Institute Travel CO₂ Awareness App")
 
@@ -40,7 +42,7 @@ with st.form("add_trip_form"):
     with col3:
         roundtrip = st.checkbox("Roundtrip")
     with col4:
-        mode = st.selectbox("Mode", ["Plane", "Train", "Car", "Bus", "Other"])
+        mode = st.selectbox("Mode", ["Plane", "Train", "Car", "Bus"])
     
     submitted = st.form_submit_button("Add Trip")
     if submitted:
@@ -54,22 +56,35 @@ st.dataframe(st.session_state.trips_df)
 
 # --- CO₂ factors ---
 co2_factors = {
-    "Plane": 0.25,
-    "Train": 0.05,
-    "Car": 0.20,
-    "Bus": 0.10,
-    "Other": 0.15
+    "Plane": 0.254,
+    "Train": 0.02,
+    "Car": 0.2,
+    "Bus": 0.07
 }
 
 # --- Function to calculate CO₂ per row ---
 def calc_co2(row):
     try:
-        distance = geodesic(row["From"], row["To"]).km
+        geolocator = Nominatim(user_agent="city_distance_app")
+
+        # Get city coordinates
+        city1 = geolocator.geocode(row["From"])
+        city2 = geolocator.geocode(row["To"])
+
+        # Extract latitude and longitude
+        coords_1 = (city1.latitude, city1.longitude)
+        coords_2 = (city2.latitude, city2.longitude)
+
+        # Calculate distance (in kilometers)
+        distance = geodesic(coords_1, coords_2).kilometers
     except:
-        distance = 500  # fallback if geopy can't resolve
+        st.warning("The city entered is mispelled, please try again!")  # fallback if geopy can't resolve
     if row["Roundtrip"]:
         distance *= 2
-    return distance * co2_factors.get(row["Mode"], 0.15)
+    co2_rate = co2_factors.get(row["Mode"])
+    if distance>1000 and row["Mode"]=="Plane":
+        co2_rate = 0.1
+    return distance * co2_rate
 
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = pd.DataFrame(sheet.get_all_records())

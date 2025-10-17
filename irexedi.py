@@ -99,7 +99,7 @@ if not all_records.empty:
     co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
 
     # Plot
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(24, 12))
     ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
     ax.set_ylabel("CO₂ Emissions (kg)")
     ax.set_title("Total CO₂ per Role (from all submissions)")
@@ -144,7 +144,7 @@ if not all_records.empty:
                 color = role_colors.get(row["Role"], "black")
 
                 # Plot arc
-                ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.7)
+                ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=4)
                 # Plot endpoints
                 ax.plot(A[0], A[1], 'o', transform=ccrs.Geodetic(), color=color)
                 ax.plot(B[0], B[1], 'o', transform=ccrs.Geodetic(), color=color)

@@ -99,7 +99,7 @@ if not all_records.empty:
     co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
 
     # Plot
-    fig, ax = plt.subplots(figsize=(24, 12))
+    fig, ax = plt.subplots()
     ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
     ax.set_ylabel("CO₂ Emissions (kg)")
     ax.set_title("Total CO₂ per Role (from all submissions)")
@@ -152,7 +152,7 @@ if not all_records.empty:
         except Exception as e:
             print(f"Error geocoding row {idx}: {e}")
 
-    st.pyplot(fig)
+    st.pyplot(fig,bbox_inches='tight',use_container_width=True)
 else:
     st.info("No trips submitted yet.")
 

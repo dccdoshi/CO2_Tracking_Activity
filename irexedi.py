@@ -10,7 +10,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from pyproj import Geod
 
-st.title("🌍 Institute Travel CO₂ Awareness App")
+st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 
 # --- Role selection ---
 role = st.selectbox("Your role", ["Professor", "Postdoc", "Grad Student", "Staff"])

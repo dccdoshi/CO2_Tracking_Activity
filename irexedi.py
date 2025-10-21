@@ -137,12 +137,15 @@ if not all_records.empty:
         B = city_coords.get(row["To"])
 
         if A is None or B is None:
+            print("here")
             try:
                 if A is None:
+                    print("A is none")
                     loc_from = geolocator.geocode(row["From"])
                     A = (loc_from.longitude, loc_from.latitude)
 
                 if B is None:
+                    print("B is none")
                     loc_to = geolocator.geocode(row["To"])
                     B = (loc_to.longitude, loc_to.latitude)
             except:
@@ -151,7 +154,6 @@ if not all_records.empty:
         
 
         # Create intermediate points
-        print(A, B)
         npts = 50
         intermediate = geod.npts(A[0], A[1], B[0], B[1], npts)
         arc_lons = [A[0]] + [p[0] for p in intermediate] + [B[0]]

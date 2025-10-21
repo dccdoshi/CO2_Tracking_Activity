@@ -89,7 +89,8 @@ city_coords = {
     "Munich": (48.1351, 11.5820),
     "Lyon": (45.7640, 4.8357),
     "Nice": (43.7102, 7.2620),
-    "Marseille": (43.2965, 5.3698)
+    "Marseille": (43.2965, 5.3698),
+    "Anchorage": (61.2181, -149.9003)
 }
 
 # --- Function to calculate CO₂ per row ---

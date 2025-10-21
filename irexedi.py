@@ -10,14 +10,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from pyproj import Geod
 from opencage.geocoder import OpenCageGeocode
-import builtins
 
-# def st_print(*args, **kwargs):
-#     st.text(" ".join(str(a) for a in args))
-#     builtins._print(*args, **kwargs)
-
-# builtins._print = builtins.print
-# builtins.print = st_print
 
 key = "59e60896938b4c4b995925c68d07845c"  # Replace this with your real key
 geocoder = OpenCageGeocode(key)

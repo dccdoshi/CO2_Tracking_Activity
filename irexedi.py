@@ -136,17 +136,18 @@ if not all_records.empty:
 
     for idx, row in all_records.iterrows():
         try:
-            loc_from = city_coords.get(row["From"])
-            loc_to = city_coords.get(row["To"])
+            A = city_coords.get(row["From"])
+            B = city_coords.get(row["To"])
         except:
             try:
                 loc_from = geolocator.geocode(row["From"])
                 loc_to = geolocator.geocode(row["To"])
+                A = (loc_from.longitude, loc_from.latitude)
+                B = (loc_to.longitude, loc_to.latitude)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 
-        A = (loc_from.longitude, loc_from.latitude)
-        B = (loc_to.longitude, loc_to.latitude)
+        
 
         # Create intermediate points
         npts = 50

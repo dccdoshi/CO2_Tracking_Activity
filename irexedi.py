@@ -148,6 +148,7 @@ if not all_records.empty:
                 if B is None:
                     print("B is none",row["To"])
                     loc_to = geolocator.geocode(row["To"])
+                    print(loc_to)
                     B = (loc_to.longitude, loc_to.latitude)
                     print(B)
             except:

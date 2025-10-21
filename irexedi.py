@@ -166,7 +166,7 @@ if not all_records.empty:
         # Create intermediate points
         npts = 50
         print(row["To"],B)
-        intermediate = geod.npts(A[0], A[1], B[0], B[1], npts)
+        intermediate = geod.npts(A[1], A[0], B[1], B[0], npts)
         arc_lons = [A[1]] + [p[1] for p in intermediate] + [B[1]]
         arc_lats = [A[0]] + [p[0] for p in intermediate] + [B[0]]
 

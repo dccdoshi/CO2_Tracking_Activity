@@ -174,7 +174,7 @@ if not all_records.empty:
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)
 
 
-    st.pyplot(fig,bbox_inches='tight',width=True)
+    st.pyplot(fig,bbox_inches='tight',use_container_width=True)
 
     # Ensure CO2_kg column exists
     if "CO2_kg" not in all_records.columns:

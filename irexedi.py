@@ -95,6 +95,7 @@ def calc_co2(row):
                 A = (lat, lon)
 
             if B is None:
+                print(row["To"],B)
                 result = geocoder.geocode(row["To"])[0]
                 lat, lon = result['geometry']['lat'], result['geometry']['lng']
                 A = (lat, lon)
@@ -142,6 +143,7 @@ if not all_records.empty:
 
         A = city_coords.get(row["From"])
         B = city_coords.get(row["To"])
+        print(row['From'],A,row['To'],B)
         if A is None or B is None:
             try:
                 if A is None:

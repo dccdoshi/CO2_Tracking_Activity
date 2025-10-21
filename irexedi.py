@@ -9,6 +9,10 @@ from geopy.geocoders import Nominatim
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from pyproj import Geod
+from opencage.geocoder import OpenCageGeocode
+
+key = "59e60896938b4c4b995925c68d07845c"  # Replace this with your real key
+geocoder = OpenCageGeocode(key)
 
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Travel")
@@ -80,19 +84,20 @@ city_coords = {
 
 # --- Function to calculate CO₂ per row ---
 def calc_co2(row):
-    geolocator = Nominatim(user_agent="travel_co2_app")
     A = city_coords.get(row["From"])
     B = city_coords.get(row["To"])
 
     if A is None or B is None:
         try:
             if A is None:
-                loc_from = geolocator.geocode(row["From"])
-                A = (loc_from.longitude, loc_from.latitude)
+                result = geocoder.geocode(row["From"])[0]
+                lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                A = (lat, lon)
 
             if B is None:
-                loc_to = geolocator.geocode(row["To"])
-                B = (loc_to.longitude, loc_to.latitude)
+                result = geocoder.geocode(row["To"])[0]
+                lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                A = (lat, lon)
         except:
             st.warning("The city entered is mispelled, please try again!")
 
@@ -142,14 +147,16 @@ if not all_records.empty:
             try:
                 if A is None:
                     print("A is none")
-                    loc_from = geolocator.geocode(row["From"])
-                    A = (loc_from.longitude, loc_from.latitude)
+                    result = geocoder.geocode(row["From"])[0]
+                    lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                    A = (lat, lon)
 
                 if B is None:
                     print("B is none",row["To"])
-                    loc_to = geolocator.geocode("Cairo")
-                    print(loc_to)
-                    B = (loc_to.longitude, loc_to.latitude)
+                    result = geocoder.geocode(row["To"])[0]
+                    lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                    B = (lat, lon)
+                    print(result)
                     print(B)
             except:
                 st.warning("The city entered is mispelled, please try again!")

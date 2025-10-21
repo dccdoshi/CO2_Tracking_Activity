@@ -79,8 +79,17 @@ city_coords = {
     "Montreal": (45.5031824, -73.5698065),
     "Lisbon": (38.7077507, -9.1365919),
     "Porto": (41.1502195, -8.6103497),
-    "Halifax": (44.648618, -63.5859487)
-    # Add more cities as needed
+    "Halifax": (44.648618, -63.5859487),
+    "Geneva": (46.2044, 6.1432),
+    "Grenoble": (45.1885, 5.7245),
+    "La Serena": (-29.9045, -71.2489),
+    "Amsterdam": (52.3676, 4.9041),
+    "Hamilton": (43.2557, -79.8711),
+    "Madrid": (40.4168, -3.7038),
+    "Munich": (48.1351, 11.5820),
+    "Lyon": (45.7640, 4.8357),
+    "Nice": (43.7102, 7.2620),
+    "Marseille": (43.2965, 5.3698)
 }
 
 # --- Function to calculate CO₂ per row ---
@@ -96,7 +105,6 @@ def calc_co2(row):
                 A = (lat, lon)
 
             if B is None:
-                print(row["To"],B)
                 result = geocoder.geocode(row["To"])[0]
                 lat, lon = result['geometry']['lat'], result['geometry']['lng']
                 A = (lat, lon)
@@ -104,7 +112,6 @@ def calc_co2(row):
             st.warning("The city entered is mispelled, please try again!")
 
     # Calculate distance (in kilometers)
-    print(row["To"],B)
     distance = geodesic(A, B).kilometers
     co2_rate = co2_factors.get(row["Mode"])
     if distance>1000 and row["Mode"]=="Plane":
@@ -144,7 +151,6 @@ if not all_records.empty:
 
         A = city_coords.get(row["From"])
         B = city_coords.get(row["To"])
-        print(row['From'],A,row['To'],B)
         if A is None or B is None:
             try:
                 if A is None:
@@ -153,11 +159,9 @@ if not all_records.empty:
                     A = (lat, lon)
 
                 if B is None:
-                    print("B is none",row["To"])
                     result = geocoder.geocode(row["To"])[0]
                     lat, lon = result['geometry']['lat'], result['geometry']['lng']
                     B = (lat, lon)
-                    print("geo",B)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 
@@ -165,7 +169,6 @@ if not all_records.empty:
 
         # Create intermediate points
         npts = 50
-        print(row["To"],B)
         intermediate = geod.npts(A[1], A[0], B[1], B[0], npts)
         arc_lons = [A[1]] + [p[0] for p in intermediate] + [B[1]]
         arc_lats = [A[0]] + [p[1] for p in intermediate] + [B[0]]
@@ -186,12 +189,29 @@ if not all_records.empty:
         all_records["CO2_kg"] = all_records.apply(calc_co2, axis=1)
     co2_per_role = all_records.groupby("Role")["CO2_kg"].sum().reset_index()
 
-    # Plot
-    fig, ax = plt.subplots(figsize=(10,10))
-    ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
-    ax.set_ylabel("CO₂ Emissions (kg)")
-    ax.set_title("Total CO₂ per Role (from all submissions)")
-    st.pyplot(fig,width='content')
+    # --- Create subplots ---
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    colors = [role_colors.get(role, "gray") for role in co2_per_role["Role"]]
+
+    # Bar chart
+    axes[0].bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color=colors)
+    axes[0].set_ylabel("CO₂ Emissions (kg)")
+    axes[0].set_title("Total CO₂ per Role (Bar Chart)")
+    axes[0].tick_params(axis='x', rotation=45)
+
+    # Pie chart
+    axes[1].pie(
+        co2_per_role["CO2_kg"],
+        labels=co2_per_role["Role"],
+        autopct="%1.1f%%",
+        colors=colors,
+        startangle=90,
+        counterclock=False
+    )
+    axes[1].set_title("CO₂ Emission Share per Role (Pie Chart)")
+
+    plt.tight_layout()
+    st.pyplot(fig, use_container_width=True)
 else:
     st.info("No trips submitted yet.")
 

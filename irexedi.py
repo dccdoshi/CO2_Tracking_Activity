@@ -136,9 +136,9 @@ if not all_records.empty:
 
         A = city_coords.get(row["From"])
         B = city_coords.get(row["To"])
-
+        print(A, B)
         if A is None or B is None:
-            print("here")
+            print("here", A, B)
             try:
                 if A is None:
                     print("A is none")

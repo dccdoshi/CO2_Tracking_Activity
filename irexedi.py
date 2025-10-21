@@ -102,6 +102,7 @@ def calc_co2(row):
             st.warning("The city entered is mispelled, please try again!")
 
     # Calculate distance (in kilometers)
+    print(row["To"],B)
     distance = geodesic(A, B).kilometers
     co2_rate = co2_factors.get(row["Mode"])
     if distance>1000 and row["Mode"]=="Plane":
@@ -175,7 +176,7 @@ if not all_records.empty:
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)
 
 
-    st.pyplot(fig,bbox_inches='tight',use_container_width=True)
+    st.pyplot(fig,bbox_inches='tight',width='stretch')
 
     # Ensure CO2_kg column exists
     if "CO2_kg" not in all_records.columns:
@@ -187,7 +188,7 @@ if not all_records.empty:
     ax.bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color="skyblue")
     ax.set_ylabel("CO₂ Emissions (kg)")
     ax.set_title("Total CO₂ per Role (from all submissions)")
-    st.pyplot(fig,use_container_width=False)
+    st.pyplot(fig,width='content')
 else:
     st.info("No trips submitted yet.")
 

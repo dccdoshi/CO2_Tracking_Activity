@@ -65,24 +65,41 @@ co2_factors = {
     "Bus": 0.07
 }
 
+city_coords = {
+    "Santiago": (-33.4489, -70.6693),
+    "Toronto": (43.6532, -79.3832),
+    "Paris": (48.8566, 2.3522),
+    "New York": (40.7128, -74.0060),
+    "London": (51.5074, -0.1278),
+    "Montreal": (45.5031824, -73.5698065),
+    "Lisbon": (38.7077507, -9.1365919),
+    "Porto": (41.1502195, -8.6103497),
+    "Halifax": (44.648618, -63.5859487)
+    # Add more cities as needed
+}
+
 # --- Function to calculate CO₂ per row ---
 def calc_co2(row):
     try:
-        geolocator = Nominatim(user_agent="city_distance_app")
-
-        # Get city coordinates
-        city1 = geolocator.geocode(row["From"])
-        city2 = geolocator.geocode(row["To"])
-
-        # Extract latitude and longitude
-        coords_1 = (city1.latitude, city1.longitude)
-        coords_2 = (city2.latitude, city2.longitude)
-
-        # Calculate distance (in kilometers)
-        distance = geodesic(coords_1, coords_2).kilometers
+        coords_1 = city_coords.get(row["From"])
+        coords_2 = city_coords.get(row["To"])
     except:
-        st.warning("The city entered is mispelled, please try again!")  # fallback if geopy can't resolve
+        try:
+            geolocator = Nominatim(user_agent="city_distance_app")
 
+            # Get city coordinates
+            city1 = geolocator.geocode(row["From"])
+            city2 = geolocator.geocode(row["To"])
+
+            # Extract latitude and longitude
+            coords_1 = (city1.latitude, city1.longitude)
+            coords_2 = (city2.latitude, city2.longitude)
+
+        except:
+            st.warning("The city entered is mispelled, please try again!")  # fallback if geopy can't resolve
+
+    # Calculate distance (in kilometers)
+    distance = geodesic(coords_1, coords_2).kilometers
     co2_rate = co2_factors.get(row["Mode"])
     if distance>1000 and row["Mode"]=="Plane":
         co2_rate = 0.1
@@ -119,28 +136,32 @@ if not all_records.empty:
 
     for idx, row in all_records.iterrows():
         try:
-            loc_from = geolocator.geocode(row["From"])
-            loc_to = geolocator.geocode(row["To"])
-            if loc_from and loc_to:
-                A = (loc_from.longitude, loc_from.latitude)
-                B = (loc_to.longitude, loc_to.latitude)
+            loc_from = city_coords.get(row["From"])
+            loc_to = city_coords.get(row["To"])
+        except:
+            try:
+                loc_from = geolocator.geocode(row["From"])
+                loc_to = geolocator.geocode(row["To"])
+            except:
+                st.warning("The city entered is mispelled, please try again!")
 
-                # Create intermediate points
-                npts = 50
-                intermediate = geod.npts(A[0], A[1], B[0], B[1], npts)
-                arc_lons = [A[0]] + [p[0] for p in intermediate] + [B[0]]
-                arc_lats = [A[1]] + [p[1] for p in intermediate] + [B[1]]
+        A = (loc_from.longitude, loc_from.latitude)
+        B = (loc_to.longitude, loc_to.latitude)
 
-                color = role_colors.get(row["Role"], "black")
+        # Create intermediate points
+        npts = 50
+        intermediate = geod.npts(A[0], A[1], B[0], B[1], npts)
+        arc_lons = [A[0]] + [p[0] for p in intermediate] + [B[0]]
+        arc_lats = [A[1]] + [p[1] for p in intermediate] + [B[1]]
 
-                # Plot arc
-                ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=4)
-                # Plot endpoints
-                ax.plot(A[0], A[1], 'o', transform=ccrs.Geodetic(), color=color)
-                ax.plot(B[0], B[1], 'o', transform=ccrs.Geodetic(), color=color)
+        color = role_colors.get(row["Role"], "black")
 
-        except Exception as e:
-            print(f"Error geocoding row {idx}: {e}")
+        # Plot arc
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=4)
+        # Plot endpoints
+        ax.plot(A[0], A[1], 'o', transform=ccrs.Geodetic(), color=color)
+        ax.plot(B[0], B[1], 'o', transform=ccrs.Geodetic(), color=color)
+
 
     st.pyplot(fig,bbox_inches='tight',use_container_width=True)
 

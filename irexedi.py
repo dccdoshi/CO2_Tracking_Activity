@@ -80,6 +80,7 @@ city_coords = {
 
 # --- Function to calculate CO₂ per row ---
 def calc_co2(row):
+    geolocator = Nominatim(user_agent="travel_co2_app")
     A = city_coords.get(row["From"])
     B = city_coords.get(row["To"])
 

@@ -148,6 +148,7 @@ if not all_records.empty:
                     print("B is none",row["To"])
                     loc_to = geolocator.geocode(row["To"])
                     B = (loc_to.longitude, loc_to.latitude)
+                    print(B)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 

@@ -80,26 +80,23 @@ city_coords = {
 
 # --- Function to calculate CO₂ per row ---
 def calc_co2(row):
-    try:
-        coords_1 = city_coords.get(row["From"])
-        coords_2 = city_coords.get(row["To"])
-    except:
+    A = city_coords.get(row["From"])
+    B = city_coords.get(row["To"])
+
+    if A is None or B is None:
         try:
-            geolocator = Nominatim(user_agent="city_distance_app")
+            if A is None:
+                loc_from = geolocator.geocode(row["From"])
+                A = (loc_from.longitude, loc_from.latitude)
 
-            # Get city coordinates
-            city1 = geolocator.geocode(row["From"])
-            city2 = geolocator.geocode(row["To"])
-
-            # Extract latitude and longitude
-            coords_1 = (city1.latitude, city1.longitude)
-            coords_2 = (city2.latitude, city2.longitude)
-
+            if B is None:
+                loc_to = geolocator.geocode(row["To"])
+                B = (loc_to.longitude, loc_to.latitude)
         except:
-            st.warning("The city entered is mispelled, please try again!")  # fallback if geopy can't resolve
+            st.warning("The city entered is mispelled, please try again!")
 
     # Calculate distance (in kilometers)
-    distance = geodesic(coords_1, coords_2).kilometers
+    distance = geodesic(A, B).kilometers
     co2_rate = co2_factors.get(row["Mode"])
     if distance>1000 and row["Mode"]=="Plane":
         co2_rate = 0.1
@@ -135,15 +132,19 @@ if not all_records.empty:
     geod = Geod(ellps="WGS84")
 
     for idx, row in all_records.iterrows():
-        try:
-            A = city_coords.get(row["From"])
-            B = city_coords.get(row["To"])
-        except:
+
+        A = city_coords.get(row["From"])
+        B = city_coords.get(row["To"])
+
+        if A is None or B is None:
             try:
-                loc_from = geolocator.geocode(row["From"])
-                loc_to = geolocator.geocode(row["To"])
-                A = (loc_from.longitude, loc_from.latitude)
-                B = (loc_to.longitude, loc_to.latitude)
+                if A is None:
+                    loc_from = geolocator.geocode(row["From"])
+                    A = (loc_from.longitude, loc_from.latitude)
+
+                if B is None:
+                    loc_to = geolocator.geocode(row["To"])
+                    B = (loc_to.longitude, loc_to.latitude)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 

@@ -141,12 +141,9 @@ if not all_records.empty:
 
         A = city_coords.get(row["From"])
         B = city_coords.get(row["To"])
-        print(A, B)
         if A is None or B is None:
-            print("here", A, B)
             try:
                 if A is None:
-                    print("A is none")
                     result = geocoder.geocode(row["From"])[0]
                     lat, lon = result['geometry']['lat'], result['geometry']['lng']
                     A = (lat, lon)
@@ -156,8 +153,7 @@ if not all_records.empty:
                     result = geocoder.geocode(row["To"])[0]
                     lat, lon = result['geometry']['lat'], result['geometry']['lng']
                     B = (lat, lon)
-                    print(result)
-                    print(B)
+                    print("geo",B)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 
@@ -178,7 +174,7 @@ if not all_records.empty:
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)
 
 
-    st.pyplot(fig,bbox_inches='tight',use_container_width=True)
+    st.pyplot(fig,bbox_inches='tight',width=True)
 
     # Ensure CO2_kg column exists
     if "CO2_kg" not in all_records.columns:

@@ -136,7 +136,7 @@ if st.button("Submit all trips"):
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
         sheet.append_rows(rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(df["CO2_kg"])+"kg")
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values,2))+"kg")
         
 
         # Clear local trips
@@ -206,8 +206,8 @@ if not all_records.empty:
         # Plot arc
         ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4,ls=linestyles[row['Mode']])
         # Plot endpoints
-        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color)
-        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)
+        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=25,mec="white")
+        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=25,mec="white")
 
 
     st.pyplot(fig,bbox_inches='tight',width='stretch')

@@ -206,8 +206,8 @@ if not all_records.empty:
         # Plot arc
         ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4,ls=linestyles[row['Mode']])
         # Plot endpoints
-        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=25,mec="white")
-        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=25,mec="white")
+        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=14,mec="white",mew=4)
+        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=14,mec="white",mew=4)
 
 
     st.pyplot(fig,bbox_inches='tight',width='stretch')

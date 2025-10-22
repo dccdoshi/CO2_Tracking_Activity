@@ -12,6 +12,100 @@ from pyproj import Geod
 from opencage.geocoder import OpenCageGeocode
 
 
+st.markdown("""
+    <style>
+    /* ===== Overall App Background ===== */
+    .stApp {
+        background-color: #0e1117;
+        background-image: radial-gradient(circle at top left, #1a1e29, #0e1117);
+        color: #e0e0e0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ===== Sidebar ===== */
+    section[data-testid="stSidebar"] {
+        background-color: #11141c;
+        border-right: 1px solid #2a2d36;
+    }
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {
+        color: #d1d5db !important;
+        font-size: 15px !important;
+    }
+
+    /* ===== Headers ===== */
+    h1, h2, h3, h4 {
+        color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    /* ===== Paragraphs, Labels ===== */
+    p, label, span, div {
+        color: #d1d5db;
+    }
+
+    /* ===== Buttons ===== */
+    div.stButton > button {
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        color: white;
+        border: none;
+        padding: 0.6em 1.5em;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0px 0px 10px rgba(124, 58, 237, 0.3);
+    }
+
+    div.stButton > button:hover {
+        background: linear-gradient(90deg, #7c3aed, #9333ea);
+        transform: translateY(-2px);
+        box-shadow: 0px 0px 15px rgba(147, 51, 234, 0.5);
+    }
+
+    /* ===== Select boxes, sliders, etc. ===== */
+    .stSelectbox, .stSlider, .stTextInput, .stNumberInput {
+        background-color: #1c1f2b !important;
+        color: #e0e0e0 !important;
+        border-radius: 6px;
+    }
+
+    /* ===== Plot area enhancements ===== */
+    .stPlotlyChart, .stAltairChart, .stDeckGlJsonChart, .stVegaLiteChart {
+        background-color: transparent !important;
+    }
+
+    /* ===== Titles and emphasis ===== */
+    .highlight {
+        color: #a78bfa;
+        font-weight: 700;
+    }
+
+    hr {
+        border: 1px solid #2a2d36;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    /* ===== Scrollbar ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #666;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
+
 key = "59e60896938b4c4b995925c68d07845c"  # Replace this with your real key
 geocoder = OpenCageGeocode(key)
 
@@ -124,7 +218,7 @@ def calc_co2(row):
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = pd.DataFrame(sheet.get_all_records())
 all_records['count'] = (
-    all_records.groupby(['From', 'To'])['To']
+    all_records.groupby(['From', 'To','Mode'])['To']
       .transform('count')
 )
 if not all_records.empty:
@@ -134,19 +228,21 @@ if not all_records.empty:
 
     # Map colors per role
     role_colors = {
-        "Professor": "red",
-        "Postdoc": "blue",
-        "Grad Student": "green",
+        "Professor": "mistyrose",
+        "Postdoc": "lightcyan",
+        "Grad Student": "palegreen",
         "Staff": "orange"
     }
+
+    linestyles = {'Plane': '-', 'Train': '--', 'Bus': ':', 'Car': ':'}
 
     fig = plt.figure(figsize=(24, 12))
     ax = plt.axes(projection=ccrs.Robinson())
     ax.set_global()
-    ax.add_feature(cfeature.LAND, facecolor='lightgrey')
-    ax.add_feature(cfeature.OCEAN, facecolor='white')
+    ax.add_feature(cfeature.LAND, facecolor='darkgreen')
+    ax.add_feature(cfeature.OCEAN, facecolor='darkblue')
     ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.BORDERS, linestyle=':')
+    ax.add_feature(cfeature.BORDERS, linestyle=':',color='lightgrey')
     ax.gridlines(draw_labels=False)
 
     geod = Geod(ellps="WGS84")
@@ -180,7 +276,7 @@ if not all_records.empty:
         color = role_colors.get(row["Role"], "black")
 
         # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4)
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4,ls=linestyles[row['Mode']])
         # Plot endpoints
         ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color)
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)

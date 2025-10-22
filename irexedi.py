@@ -20,8 +20,7 @@ st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Travel")
 
 # --- Role selection ---
-st.subheader("Enter Your Role")
-role = st.selectbox("", ["Professor", "Postdoc", "Grad Student", "Staff"])
+role = st.selectbox("Your Role", ["Professor", "Postdoc", "Grad Student", "Staff"])
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1Zc4THpM4lFkQ2jOmi5mbn_U0eqHK3DBgLF86qH-JCms"
@@ -46,7 +45,6 @@ if "trips_df" not in st.session_state:
 with st.form("add_trip_form"):
     col1, col2, col3, col4 = st.columns([3,3,1,2])
     with col1:
-        st.markdown("**Destination:**")
         from_loc = st.text_input("From")
     with col2:
         to_loc = st.text_input("To")

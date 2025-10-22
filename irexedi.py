@@ -149,6 +149,9 @@ all_records['count'] = (
     all_records.groupby(['From', 'To','Mode'])['To']
       .transform('count')
 )
+total_co2 = sum(all_records["CO2_kg"])
+st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
+
 if not all_records.empty:
 
     # Geolocator
@@ -204,10 +207,10 @@ if not all_records.empty:
         color = role_colors.get(row["Role"], "black")
 
         # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4,ls=linestyles[row['Mode']])
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*2,ls=linestyles[row['Mode']])
         # Plot endpoints
-        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=14,mec="k",mew=4)
-        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=14,mec="k",mew=4)
+        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
+        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
 
 
     st.pyplot(fig,bbox_inches='tight',width='stretch')

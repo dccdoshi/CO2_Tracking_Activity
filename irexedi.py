@@ -123,7 +123,10 @@ def calc_co2(row):
 
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = pd.DataFrame(sheet.get_all_records())
-
+all_records['count'] = (
+    all_records.groupby(['From', 'To'])['To']
+      .transform('count')
+)
 if not all_records.empty:
 
     # Geolocator
@@ -177,7 +180,7 @@ if not all_records.empty:
         color = role_colors.get(row["Role"], "black")
 
         # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=4)
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*4)
         # Plot endpoints
         ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color)
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color)
@@ -231,6 +234,7 @@ if st.button("Submit all trips"):
         sheet.append_rows(rows)
 
         st.success("✅ Trips submitted!")
+        
 
         # Clear local trips
         st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])

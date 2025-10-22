@@ -147,7 +147,7 @@ if not all_records.empty:
     ax = plt.axes(projection=ccrs.Robinson())
     ax.set_global()
     ax.add_feature(cfeature.LAND, facecolor='honeydew')
-    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+    ax.add_feature(cfeature.OCEAN, facecolor='azure')
     ax.add_feature(cfeature.COASTLINE)
     ax.add_feature(cfeature.BORDERS, linestyle=':',color='black')
     ax.gridlines(draw_labels=False)

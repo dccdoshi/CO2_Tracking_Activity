@@ -122,6 +122,27 @@ def calc_co2(row):
         distance *= 2
     return distance * co2_rate
 
+# --- Submit new trips ---
+if st.button("Submit all trips"):
+    if st.session_state.trips_df.empty:
+        st.warning("Please add at least one trip before submitting!")
+    else:
+        timestamp = datetime.now().isoformat()
+        df = st.session_state.trips_df.copy()
+        df["Role"] = role
+        df["Timestamp"] = timestamp
+        df["CO2_kg"] = df.apply(calc_co2, axis=1)
+
+        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
+        sheet.append_rows(rows)
+
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(df["CO2_kg"])+"kg")
+        
+
+        # Clear local trips
+        st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
+
+
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = pd.DataFrame(sheet.get_all_records())
 all_records['count'] = (
@@ -221,24 +242,4 @@ if not all_records.empty:
     st.pyplot(fig, use_container_width=True)
 else:
     st.info("No trips submitted yet.")
-
-# --- Submit new trips ---
-if st.button("Submit all trips"):
-    if st.session_state.trips_df.empty:
-        st.warning("Please add at least one trip before submitting!")
-    else:
-        timestamp = datetime.now().isoformat()
-        df = st.session_state.trips_df.copy()
-        df["Role"] = role
-        df["Timestamp"] = timestamp
-        df["CO2_kg"] = df.apply(calc_co2, axis=1)
-
-        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
-        sheet.append_rows(rows)
-
-        st.success("✅ Trips submitted!")
-        
-
-        # Clear local trips
-        st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
 

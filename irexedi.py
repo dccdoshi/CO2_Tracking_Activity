@@ -20,7 +20,8 @@ st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Travel")
 
 # --- Role selection ---
-role = st.selectbox("Your role", ["Professor", "Postdoc", "Grad Student", "Staff"])
+st.subheader("Enter Your Role")
+role = st.selectbox("", ["Professor", "Postdoc", "Grad Student", "Staff"])
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1Zc4THpM4lFkQ2jOmi5mbn_U0eqHK3DBgLF86qH-JCms"
@@ -45,6 +46,7 @@ if "trips_df" not in st.session_state:
 with st.form("add_trip_form"):
     col1, col2, col3, col4 = st.columns([3,3,1,2])
     with col1:
+        st.markdown("**Destination:**")
         from_loc = st.text_input("From")
     with col2:
         to_loc = st.text_input("To")
@@ -109,7 +111,7 @@ def calc_co2(row):
             if B is None:
                 result = geocoder.geocode(row["To"])[0]
                 lat, lon = result['geometry']['lat'], result['geometry']['lng']
-                A = (lat, lon)
+                B = (lat, lon)
         except:
             st.warning("The city entered is mispelled, please try again!")
 
@@ -207,7 +209,7 @@ if not all_records.empty:
         color = role_colors.get(row["Role"], "black")
 
         # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=0.5,lw=row['count']*2,ls=linestyles[row['Mode']])
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=1/(2*row['count']),lw=row['count']*2,ls=linestyles[row['Mode']])
         # Plot endpoints
         ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)

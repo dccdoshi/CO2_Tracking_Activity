@@ -12,6 +12,8 @@ from pyproj import Geod
 import requests
 from geopy.geocoders import Nominatim
 import streamlit as st
+import plotly.graph_objects as go
+
 
 geolocator = Nominatim(user_agent="travel_app")
 
@@ -181,29 +183,45 @@ st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
 
 if not all_records.empty:
 
-    # Geolocator
-    geolocator = Nominatim(user_agent="travel_co2_app")
+    geod = Geod(ellps="WGS84")
 
-    # Map colors per role
+    # Role colors
     role_colors = {
-        "Professor": "red",
-        "Postdoc": "blue",
-        "Grad Student": "green",
-        "Staff": "orange"
+        "Professor": "#E74C3C",    # red
+        "Postdoc": "#3498DB",      # blue
+        "Grad Student": "#27AE60", # green
+        "Staff": "#E67E22"         # orange
     }
 
-    linestyles = {'Plane': '-', 'Train': '--', 'Bus': ':', 'Car': ':'}
+    # Mode line styles
+    linestyles = {
+        "Plane": "solid",
+        "Train": "dash",
+        "Bus": "dot",
+        "Car": "dashdot"
+    }
 
-    fig = plt.figure(figsize=(24, 12))
-    ax = plt.axes(projection=ccrs.Robinson())
-    ax.set_global()
-    ax.add_feature(cfeature.LAND, facecolor='honeydew')
-    ax.add_feature(cfeature.OCEAN, facecolor='azure')
-    ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.BORDERS, linestyle=':',color='black')
-    ax.gridlines(draw_labels=False)
+    fig = go.Figure()
 
-    geod = Geod(ellps="WGS84")
+    # --- Add legend entries manually for roles ---
+    for role, color in role_colors.items():
+        fig.add_trace(go.Scattergeo(
+            lon=[None], lat=[None],
+            mode="lines",
+            line=dict(color=color, width=4),
+            name=f"{role}",
+            hoverinfo="none"
+        ))
+
+    # --- Add legend entries manually for modes ---
+    for mode, dash in linestyles.items():
+        fig.add_trace(go.Scattergeo(
+            lon=[None], lat=[None],
+            mode="lines",
+            line=dict(color="#555555", width=3, dash=dash),
+            name=f"{mode}",
+            hoverinfo="none"
+        ))
 
     for idx, row in all_records.iterrows():
 
@@ -232,16 +250,64 @@ if not all_records.empty:
         arc_lons = [A[1]] + [p[0] for p in intermediate] + [B[1]]
         arc_lats = [A[0]] + [p[1] for p in intermediate] + [B[0]]
 
-        color = role_colors.get(row["Role"], "black")
+        color = role_colors.get(row["Role"], "gray")
+        width = max(1, row["count"] * 1.5)
 
-        # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=row['count']/(2*row['count']),lw=row['count']*2,ls=linestyles[row['Mode']])
-        # Plot endpoints
-        ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
-        ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
+        fig.add_trace(go.Scattergeo(
+            lon=arc_lons,
+            lat=arc_lats,
+            mode="lines",
+            line=dict(width=width, color=color, dash=linestyles.get(row["Mode"], "solid")),
+            opacity=0.65,
+            hoverinfo="text",
+            text=f"<b>{row['From']} → {row['To']}</b><br>{row['Role']} via {row['Mode']}<br>{row['count']} trip(s)"
+        ))
 
+        # Endpoints
+        fig.add_trace(go.Scattergeo(
+            lon=[A[1], B[1]],
+            lat=[A[0], B[0]],
+            mode="markers",
+            marker=dict(size=5, color=color, line=dict(width=1, color="white")),
+            hoverinfo="text",
+            text=[f"{row['From']} ({row['Role']})", f"{row['To']} ({row['Role']})"],
+            showlegend=False
+        ))
 
-    st.pyplot(fig,bbox_inches='tight',width='stretch')
+    # --- Layout ---
+    fig.update_layout(
+        geo=dict(
+            projection_type="natural earth",
+            showland=True,
+            landcolor="#F5F5F5",
+            showocean=True,
+            oceancolor="#DCEFFF",
+            showcountries=True,
+            countrycolor="rgba(100,100,100,0.5)",
+            bgcolor="#FFFFFF",
+        ),
+        title=dict(
+            text="🌍 Global Travel Map by Role & Mode",
+            x=0.5,
+            font=dict(size=22, color="#333333")
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=0.01,
+            xanchor="center",
+            x=0.5,
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="#DDD",
+            borderwidth=1,
+            font=dict(size=13)
+        ),
+        margin=dict(l=0, r=0, t=40, b=0),
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#FFFFFF"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
     # Ensure CO2_kg column exists
     if "CO2_kg" not in all_records.columns:

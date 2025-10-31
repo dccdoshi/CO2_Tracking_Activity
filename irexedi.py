@@ -17,25 +17,32 @@ import plotly.graph_objects as go
 # --- Inject CSS for fullscreen style ---
 st.markdown("""
     <style>
-        /* Remove default padding */
-        .block-container {
-            padding: 0rem 0rem 0rem 0rem;
-        }
+    /* Full background dark */
+    body, .block-container {
+        background-color: #0e1117;
+        color: #FAFAFA;
+    }
 
-        /* Make chart container fill the viewport */
-        iframe {
-            height: 100vh !important;
-            width: 100vw !important;
-        }
+    /* Sidebar dark */
+    .sidebar .sidebar-content {
+        background-color: #1b1e28;
+        color: #FAFAFA;
+    }
 
-        /* Optional: set background to white for a clean light theme */
-        body {
-            background-color: #f9f9f9;
-        }
+    /* Headers */
+    h1, h2, h3, h4, h5 {
+        color: #FAFAFA;
+    }
 
-        header, footer {
-            visibility: hidden;
-        }
+    /* Links */
+    a {
+        color: #1ABC9C;
+    }
+
+    /* Hide Streamlit footer & hamburger for cleaner look */
+    header, footer {
+        visibility: hidden;
+    }
     </style>
 """, unsafe_allow_html=True)
 geolocator = Nominatim(user_agent="travel_app")
@@ -319,7 +326,7 @@ if not all_records.empty:
             font=dict(size=13)
         ),
         margin=dict(l=0, r=0, t=0, b=0),
-        height=900,
+        height=800,
         autosize=True,
         template="plotly_white"
     )

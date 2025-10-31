@@ -14,7 +14,30 @@ from geopy.geocoders import Nominatim
 import streamlit as st
 import plotly.graph_objects as go
 
+# --- Inject CSS for fullscreen style ---
+st.markdown("""
+    <style>
+        /* Remove default padding */
+        .block-container {
+            padding: 0rem 0rem 0rem 0rem;
+        }
 
+        /* Make chart container fill the viewport */
+        iframe {
+            height: 100vh !important;
+            width: 100vw !important;
+        }
+
+        /* Optional: set background to white for a clean light theme */
+        body {
+            background-color: #f9f9f9;
+        }
+
+        header, footer {
+            visibility: hidden;
+        }
+    </style>
+""", unsafe_allow_html=True)
 geolocator = Nominatim(user_agent="travel_app")
 
 
@@ -284,11 +307,6 @@ if not all_records.empty:
             countrycolor="rgba(100,100,100,0.5)",
             bgcolor="#FFFFFF",
         ),
-        title=dict(
-            text="🌍 Global Travel Map by Role & Mode",
-            x=0.5,
-            font=dict(size=22, color="#333333")
-        ),
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -300,12 +318,13 @@ if not all_records.empty:
             borderwidth=1,
             font=dict(size=13)
         ),
-        margin=dict(l=0, r=0, t=40, b=0),
-        paper_bgcolor="#FFFFFF",
-        plot_bgcolor="#FFFFFF"
+        margin=dict(l=0, r=0, t=0, b=0),
+        height=900,
+        autosize=True,
+        template="plotly_white"
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True})
 
     # Ensure CO2_kg column exists
     if "CO2_kg" not in all_records.columns:

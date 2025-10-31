@@ -217,14 +217,14 @@ if not all_records.empty:
     st.metric("🌍 Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
 
     # --- 2️⃣ Tree emoji visualization ---
-    st.write(f"🌳 Trees needed to offset {total_co2:,.0f} kg CO₂:")
+    st.write(f"🌳 Trees needed to offset: ", f"{trees_needed:,.0f}")
     # For readability, scale if very high
-    max_trees_display = 100
+    max_trees_display = 2000
     scaled_trees = min(trees_needed, max_trees_display)
-    rows = math.ceil(scaled_trees / 10)
+    rows = math.ceil(scaled_trees / 100)
 
     for i in range(rows):
-        st.write("🌳" * min(10, scaled_trees - i * 10))
+        st.write("🌳" * min(100, scaled_trees - i * 10))
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required")
 

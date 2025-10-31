@@ -218,9 +218,9 @@ if not all_records.empty:
                     st.write(row["From"],A)
 
                 if B is None:
-                    lat, lon = get_city_coords(row["From"])
+                    lat, lon = get_city_coords(row["To"])
                     B = (lat, lon)
-                    st.write(row["From"],B)
+                    st.write(row["To"],B)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 

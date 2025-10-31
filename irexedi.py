@@ -13,6 +13,7 @@ import requests
 from geopy.geocoders import Nominatim
 import streamlit as st
 import plotly.graph_objects as go
+import math
 
 # --- Inject CSS for fullscreen style ---
 
@@ -208,7 +209,44 @@ if not all_records.empty:
       .transform('count'))
     
     total_co2 = sum(all_records["CO2_kg"])
-    st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
+        # --- CO₂ offset parameters ---
+    kg_per_tree = 21  # average CO₂ absorbed per tree per year
+    trees_needed = math.ceil(total_co2 / kg_per_tree)
+
+    # --- 1️⃣ Metric for total CO₂ ---
+    st.metric("🌍 Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
+
+    # --- 2️⃣ Tree emoji visualization ---
+    st.write(f"🌳 Trees needed to offset {total_co2:,.0f} kg CO₂:")
+    # For readability, scale if very high
+    max_trees_display = 100
+    scaled_trees = min(trees_needed, max_trees_display)
+    rows = math.ceil(scaled_trees / 10)
+
+    for i in range(rows):
+        st.write("🌳" * min(10, scaled_trees - i * 10))
+    if trees_needed > max_trees_display:
+        st.write(f"…and {trees_needed - max_trees_display} more trees required")
+
+    # --- 3️⃣ Mini bar chart: CO₂ vs tree absorption ---
+    # Scale tree absorption to total CO₂ for visualization
+    fig = go.Figure(go.Bar(
+        x=["CO₂ Emitted", "CO₂ Absorbed by 1 Tree"],
+        y=[total_co2, kg_per_tree],
+        text=[f"{total_co2:,.0f} kg", f"{kg_per_tree:,.0f} kg"],
+        textposition="auto",
+        marker_color=["#e74c3c", "#27ae60"]
+    ))
+
+    fig.update_layout(
+        title="CO₂ Emitted vs. Absorption per Tree",
+        yaxis_title="kg CO₂",
+        template="plotly_white",
+        height=400,
+        margin=dict(l=20, r=20, t=40, b=20),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
     geod = Geod(ellps="WGS84")
 
     # Role colors

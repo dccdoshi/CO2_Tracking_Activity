@@ -9,12 +9,37 @@ from geopy.geocoders import Nominatim
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from pyproj import Geod
-from opencage.geocoder import OpenCageGeocode
+import requests
+from geopy.geocoders import Nominatim
+import streamlit as st
 
+geolocator = Nominatim(user_agent="travel_app")
 
+@st.cache_data
+def get_city_coords(city):
+    # Try Photon first
+    try:
+        url = f"https://photon.komoot.io/api/?q={city}"
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            if data["features"]:
+                lat = data["features"][0]["geometry"]["coordinates"][1]
+                lon = data["features"][0]["geometry"]["coordinates"][0]
+                return (lat, lon)
+    except:
+        pass
+    
+    # Fallback to Nominatim
+    try:
+        location = geolocator.geocode(city)
+        if location:
+            return (location.latitude, location.longitude)
+    except:
+        pass
 
-key = "59e60896938b4c4b995925c68d07845c"  # Replace this with your real key
-geocoder = OpenCageGeocode(key)
+    return None
+
 
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Travel")
@@ -91,7 +116,11 @@ city_coords = {
     "Lyon": (45.7640, 4.8357),
     "Nice": (43.7102, 7.2620),
     "Marseille": (43.2965, 5.3698),
-    "Anchorage": (61.2181, -149.9003)
+    "Anchorage": (61.2181, -149.9003),
+    "Laval": (45.5571125, -73.7211779),
+    "Saint-Alexis-des-Monts": (46.462694, -73.143196),
+    "Trois-Rivières": (46.3432325, -72.5428485),
+    "Sherbrooke":(45.403271, -71.889038)
 }
 
 # --- Function to calculate CO₂ per row ---
@@ -102,13 +131,11 @@ def calc_co2(row):
     if A is None or B is None:
         try:
             if A is None:
-                result = geocoder.geocode(row["From"])[0]
-                lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                lat, lon = get_city_coords(row["From"])#result['geometry']['lat'], result['geometry']['lng']
                 A = (lat, lon)
 
             if B is None:
-                result = geocoder.geocode(row["To"])[0]
-                lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                lat, lon = get_city_coords(row["From"])
                 B = (lat, lon)
         except:
             st.warning("The city entered is mispelled, please try again!")
@@ -185,13 +212,11 @@ if not all_records.empty:
         if A is None or B is None:
             try:
                 if A is None:
-                    result = geocoder.geocode(row["From"])[0]
-                    lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                    lat, lon = get_city_coords(row["From"])
                     A = (lat, lon)
 
                 if B is None:
-                    result = geocoder.geocode(row["To"])[0]
-                    lat, lon = result['geometry']['lat'], result['geometry']['lng']
+                    lat, lon = get_city_coords(row["From"])
                     B = (lat, lon)
             except:
                 st.warning("The city entered is mispelled, please try again!")
@@ -207,7 +232,7 @@ if not all_records.empty:
         color = role_colors.get(row["Role"], "black")
 
         # Plot arc
-        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=1/(2*row['count']),lw=row['count']*2,ls=linestyles[row['Mode']])
+        ax.plot(arc_lons, arc_lats, transform=ccrs.Geodetic(), color=color, alpha=row['count']/(2*row['count']),lw=row['count']*2,ls=linestyles[row['Mode']])
         # Plot endpoints
         ax.plot(A[1], A[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)
         ax.plot(B[1], B[0], 'o', transform=ccrs.Geodetic(), color=color,ms=10,mec="k",mew=2)

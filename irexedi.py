@@ -128,31 +128,6 @@ city_coords = {
 }
 
 # --- Function to calculate CO₂ per row ---
-def get_distance(row):
-    A = city_coords.get(row["From"])
-    B = city_coords.get(row["To"])
-
-    if A is None or B is None:
-        if A is None:
-            lat, lon = get_city_coords(row["From"])#result['geometry']['lat'], result['geometry']['lng']
-            A = (lat, lon)
-
-        if B is None:
-            lat, lon = get_city_coords(row["From"])
-            B = (lat, lon)
-        if A is None or B is None:
-            st.warning("The city entered is mispelled, please try again!")
-
-    # Calculate distance (in kilometers)
-    distance = geodesic(A, B).kilometers
-    co2_rate = co2_factors.get(row["Mode"])
-    if distance>1000 and row["Mode"]=="Plane":
-        co2_rate = 0.1
-    if row["Roundtrip"]:
-        distance *= 2
-    return distance
-
-# --- Function to calculate CO₂ per row ---
 def calc_co2(row):
     A = city_coords.get(row["From"])
     B = city_coords.get(row["To"])
@@ -186,10 +161,9 @@ if st.button("Submit all trips"):
         df = st.session_state.trips_df.copy()
         df["Role"] = role
         df["Timestamp"] = timestamp
-        df['Distance'] = df.apply(get_distance,axis=1)
         df["CO2_kg"] = df.apply(calc_co2, axis=1)
 
-        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","Distance","CO2_kg"]].values.tolist()
+        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
         sheet.append_rows(rows)
 
         st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")

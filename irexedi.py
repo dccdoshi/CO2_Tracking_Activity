@@ -26,7 +26,7 @@ def get_city_coords(city):
             if data["features"]:
                 lat = data["features"][0]["geometry"]["coordinates"][1]
                 lon = data["features"][0]["geometry"]["coordinates"][0]
-                return (lat, lon)
+                return lat, lon
     except:
         pass
     
@@ -34,7 +34,7 @@ def get_city_coords(city):
     try:
         location = geolocator.geocode(city)
         if location:
-            return (location.latitude, location.longitude)
+            return location.latitude, location.longitude
     except:
         pass
 

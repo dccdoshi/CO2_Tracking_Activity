@@ -162,7 +162,7 @@ def calc_co2(row):
             A = (lat, lon)
 
         if B is None:
-            lat, lon = get_city_coords(row["From"])
+            lat, lon = get_city_coords(row["To"])
             B = (lat, lon)
         if A is None or B is None:
             st.warning("The city entered is mispelled, please try again!")

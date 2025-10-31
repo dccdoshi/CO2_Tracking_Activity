@@ -224,7 +224,7 @@ if not all_records.empty:
     rows = math.ceil(scaled_trees / 100)
 
     for i in range(rows):
-        st.write("🌳" * min(100, scaled_trees - i * 10))
+        st.write("🌳" * min(100, scaled_trees - i * 100))
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required")
 

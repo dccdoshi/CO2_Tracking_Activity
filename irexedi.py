@@ -132,15 +132,14 @@ def calc_co2(row):
     B = city_coords.get(row["To"])
 
     if A is None or B is None:
-        try:
-            if A is None:
-                lat, lon = get_city_coords(row["From"])#result['geometry']['lat'], result['geometry']['lng']
-                A = (lat, lon)
+        if A is None:
+            lat, lon = get_city_coords(row["From"])#result['geometry']['lat'], result['geometry']['lng']
+            A = (lat, lon)
 
-            if B is None:
-                lat, lon = get_city_coords(row["From"])
-                B = (lat, lon)
-        except:
+        if B is None:
+            lat, lon = get_city_coords(row["From"])
+            B = (lat, lon)
+        if A is None or B is None:
             st.warning("The city entered is mispelled, please try again!")
 
     # Calculate distance (in kilometers)

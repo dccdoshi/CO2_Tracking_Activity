@@ -221,10 +221,10 @@ if not all_records.empty:
     # For readability, scale if very high
     max_trees_display = 2000
     scaled_trees = min(trees_needed, max_trees_display)
-    rows = math.ceil(scaled_trees / 100)
+    rows = math.ceil(scaled_trees / 50)
 
     for i in range(rows):
-        st.write("🌳" * min(100, scaled_trees - i * 100))
+        st.write("🌳" * min(50, scaled_trees - i * 50))
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required")
 

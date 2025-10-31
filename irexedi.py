@@ -15,7 +15,7 @@ import streamlit as st
 
 geolocator = Nominatim(user_agent="travel_app")
 
-@st.cache_data
+
 def get_city_coords(city):
     # Try Photon first
     try:

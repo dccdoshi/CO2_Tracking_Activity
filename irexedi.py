@@ -15,36 +15,7 @@ import streamlit as st
 import plotly.graph_objects as go
 
 # --- Inject CSS for fullscreen style ---
-st.markdown("""
-    <style>
-    /* Full background dark */
-    body, .block-container {
-        background-color: #0e1117;
-        color: #FAFAFA;
-    }
 
-    /* Sidebar dark */
-    .sidebar .sidebar-content {
-        background-color: #1b1e28;
-        color: #FAFAFA;
-    }
-
-    /* Headers */
-    h1, h2, h3, h4, h5 {
-        color: #FAFAFA;
-    }
-
-    /* Links */
-    a {
-        color: #1ABC9C;
-    }
-
-    /* Hide Streamlit footer & hamburger for cleaner look */
-    header, footer {
-        visibility: hidden;
-    }
-    </style>
-""", unsafe_allow_html=True)
 geolocator = Nominatim(user_agent="travel_app")
 
 

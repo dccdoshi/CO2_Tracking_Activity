@@ -214,17 +214,17 @@ if not all_records.empty:
     trees_needed = math.ceil(total_co2 / kg_per_tree)
 
     # --- 1️⃣ Metric for total CO₂ ---
-    st.metric("🌍 Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
+    st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
 
     # --- 2️⃣ Tree emoji visualization ---
-    st.write(f"🌳 Trees needed to offset: ", f"{trees_needed:,.0f}")
+    st.metric(f"Trees needed to offset: ", f"{trees_needed:,.0f}")
     # For readability, scale if very high
     max_trees_display = 2000
     scaled_trees = min(trees_needed, max_trees_display)
-    rows = math.ceil(scaled_trees / 50)
+    rows = math.ceil(scaled_trees / 80)
 
     for i in range(rows):
-        st.write("🌳" * min(50, scaled_trees - i * 50))
+        st.write("🌳" * min(80, scaled_trees - i * 80))
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required")
 
@@ -359,6 +359,7 @@ if not all_records.empty:
             borderwidth=1,
             font=dict(size=13)
         ),
+        title="Global Travel by Role and Mode",
         margin=dict(l=0, r=0, t=0, b=0),
         height=800,
         autosize=True,

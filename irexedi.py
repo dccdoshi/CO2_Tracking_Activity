@@ -267,7 +267,7 @@ if not all_records.empty:
         arc_lats = [A[0]] + [p[1] for p in intermediate] + [B[0]]
 
         color = role_colors.get(row["Role"], "gray")
-        width = max(1, row["count"] * 1.5)
+        width = max(1, row["count"] * 0.5)
 
         fig.add_trace(go.Scattergeo(
             lon=arc_lons,
@@ -276,7 +276,7 @@ if not all_records.empty:
             line=dict(width=width, color=color, dash=linestyles.get(row["Mode"], "solid")),
             opacity=0.35,
             hoverinfo="text",
-            text=f"<b>{row['From']} → {row['To']}</b><br> via {row['Mode']}<br>{row['count']} trip(s)",
+            text=f"<b>{row['From']} → {row['To']}</b><br>via {row['Mode']}<br>{row['count']} trip(s)",
             showlegend = False
         ))
 

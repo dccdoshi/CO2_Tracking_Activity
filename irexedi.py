@@ -175,13 +175,14 @@ if st.button("Submit all trips"):
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = pd.DataFrame(sheet.get_all_records())
 
-total_co2 = sum(all_records["CO2_kg"])
-st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
 
 if not all_records.empty:
     all_records['count'] = (
     all_records.groupby(['From', 'To','Mode'])['To']
       .transform('count'))
+    
+    total_co2 = sum(all_records["CO2_kg"])
+    st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
     geod = Geod(ellps="WGS84")
 
     # Role colors

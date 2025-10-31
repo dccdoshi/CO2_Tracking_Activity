@@ -227,18 +227,15 @@ if not all_records.empty:
 
         A = city_coords.get(row["From"])
         B = city_coords.get(row["To"])
-        st.write(row["From"],A,row["To"],B)
         if A is None or B is None:
             try:
                 if A is None:
                     lat, lon = get_city_coords(row["From"])
                     A = (lat, lon)
-                    st.write(row["From"],A)
 
                 if B is None:
                     lat, lon = get_city_coords(row["To"])
                     B = (lat, lon)
-                    st.write(row["To"],B)
             except:
                 st.warning("The city entered is mispelled, please try again!")
 

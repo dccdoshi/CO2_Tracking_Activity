@@ -193,7 +193,7 @@ if not all_records.empty:
     # --- 2️⃣ Tree emoji visualization ---
     st.metric(f"Trees needed to offset: ", f"{trees_needed:,.0f}")
     # For readability, scale if very high
-    max_trees_display = 1000
+    max_trees_display = 1200
     scaled_trees = min(trees_needed, max_trees_display)
     rows = math.ceil(scaled_trees / 80)
 
@@ -206,10 +206,10 @@ if not all_records.empty:
 
     # Role colors
     role_colors = {
-        "Professor": "#E74C3C",    # red
-        "Postdoc": "#3498DB",      # blue
-        "Grad Student": "#27AE60", # green
-        "Staff": "#E67E22"         # orange
+        "Professor": "#D55E00",    # red
+        "Postdoc": "#0072B2",      # blue
+        "Grad Student": "#009E73", # green
+        "Staff": "#CC79A7"         # orange
     }
 
     # Mode line styles

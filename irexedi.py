@@ -341,7 +341,7 @@ if not all_records.empty:
             font=dict(size=13)
         ),
         title="Global Travel by Role and Mode",
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=10, b=0),
         height=800,
         autosize=True,
         template="plotly_white"

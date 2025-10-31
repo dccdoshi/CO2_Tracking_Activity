@@ -260,7 +260,8 @@ if not all_records.empty:
             line=dict(width=width, color=color, dash=linestyles.get(row["Mode"], "solid")),
             opacity=0.65,
             hoverinfo="text",
-            text=f"<b>{row['From']} → {row['To']}</b><br>{row['Role']} via {row['Mode']}<br>{row['count']} trip(s)"
+            text=f"<b>{row['From']} → {row['To']}</b><br>{row['Role']} via {row['Mode']}<br>{row['count']} trip(s)",
+            showlegend = False
         ))
 
         # Endpoints

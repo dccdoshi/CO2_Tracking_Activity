@@ -149,7 +149,7 @@ def calc_co2(row):
         co2_rate = 0.1
     if row["Roundtrip"]:
         distance *= 2
-    return distance * co2_rate
+    return distance, distance * co2_rate
 
 # --- Submit new trips ---
 if st.button("Submit all trips"):
@@ -160,9 +160,9 @@ if st.button("Submit all trips"):
         df = st.session_state.trips_df.copy()
         df["Role"] = role
         df["Timestamp"] = timestamp
-        df["CO2_kg"] = df.apply(calc_co2, axis=1)
+        df["Distance"],df["CO2_kg"] = df.apply(calc_co2, axis=1)
 
-        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
+        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","Distance","CO2_kg"]].values.tolist()
         sheet.append_rows(rows)
 
         st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")

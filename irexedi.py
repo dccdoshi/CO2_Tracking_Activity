@@ -219,7 +219,7 @@ if not all_records.empty:
     # --- 2️⃣ Tree emoji visualization ---
     st.metric(f"Trees needed to offset: ", f"{trees_needed:,.0f}")
     # For readability, scale if very high
-    max_trees_display = 2000
+    max_trees_display = 1000
     scaled_trees = min(trees_needed, max_trees_display)
     rows = math.ceil(scaled_trees / 80)
 
@@ -228,25 +228,6 @@ if not all_records.empty:
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required")
 
-    # --- 3️⃣ Mini bar chart: CO₂ vs tree absorption ---
-    # Scale tree absorption to total CO₂ for visualization
-    fig = go.Figure(go.Bar(
-        x=["CO₂ Emitted", "CO₂ Absorbed by 1 Tree"],
-        y=[total_co2, kg_per_tree],
-        text=[f"{total_co2:,.0f} kg", f"{kg_per_tree:,.0f} kg"],
-        textposition="auto",
-        marker_color=["#e74c3c", "#27ae60"]
-    ))
-
-    fig.update_layout(
-        title="CO₂ Emitted vs. Absorption per Tree",
-        yaxis_title="kg CO₂",
-        template="plotly_white",
-        height=400,
-        margin=dict(l=20, r=20, t=40, b=20),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
     geod = Geod(ellps="WGS84")
 
     # Role colors

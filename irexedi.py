@@ -14,6 +14,18 @@ from geopy.geocoders import Nominatim
 import streamlit as st
 import plotly.graph_objects as go
 import math
+import time
+import threading
+
+lock = threading.Lock()
+
+def safe_append(sheet, rows):
+    with lock:  # ensure only one write at a time
+        try:
+            sheet.append_rows(rows)
+        except Exception as e:
+            st.error(f"Error writing to sheet: {e}")
+            time.sleep(2)
 
 # --- Inject CSS for fullscreen style ---
 
@@ -54,18 +66,23 @@ role = st.selectbox("Your Role", ["Professor", "Postdoc", "Grad Student", "Staff
 # --- Google Sheets connection ---
 SHEET_KEY = "1Zc4THpM4lFkQ2jOmi5mbn_U0eqHK3DBgLF86qH-JCms"
 
-@st.cache_resource
 def connect_to_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
         scopes=["https://www.googleapis.com/auth/spreadsheets"]
     )
     client = gspread.authorize(creds)
-    sheet = client.open_by_key(SHEET_KEY).sheet1
-    return sheet
+    return client.open_by_key(SHEET_KEY).sheet1
 
+@st.cache_data(ttl=60)
+def load_all_records():
+    sheet = connect_to_gsheet()
+    return pd.DataFrame(sheet.get_all_records())
+
+@st.cache_data
+def get_city_coords_cached(city):
+    return get_city_coords(city)
 sheet = connect_to_gsheet()
-
 # --- Initialize trip dataframe ---
 if "trips_df" not in st.session_state:
     st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
@@ -134,11 +151,11 @@ def calc_co2(row):
 
     if A is None or B is None:
         if A is None:
-            lat, lon = get_city_coords(row["From"])#result['geometry']['lat'], result['geometry']['lng']
+            lat, lon = get_city_coords_cached(row["From"])
             A = (lat, lon)
 
         if B is None:
-            lat, lon = get_city_coords(row["To"])
+            lat, lon = get_city_coords_cached(row["To"])
             B = (lat, lon)
         if A is None or B is None:
             st.warning("The city entered is mispelled, please try again!")
@@ -164,7 +181,7 @@ if st.button("Submit all trips"):
         df["CO2_kg"] = df.apply(calc_co2, axis=1)
 
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
-        sheet.append_rows(rows)
+        safe_append(sheet, rows)
 
         st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
         
@@ -174,8 +191,7 @@ if st.button("Submit all trips"):
 
 
 # --- Fetch all data from Google Sheet for plotting ---
-all_records = pd.DataFrame(sheet.get_all_records())
-
+all_records = load_all_records()
 
 if not all_records.empty:
     all_records['count'] = (

@@ -19,6 +19,25 @@ import threading
 
 lock = threading.Lock()
 
+# Inject custom CSS to make the button larger
+st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        background-color: #4CAF50;  /* Optional: green color */
+        color: white;
+        padding: 1em 2em;           /* Make it larger */
+        font-size: 18px;            /* Increase text size */
+        border-radius: 10px;        /* Rounded corners */
+        border: none;
+        transition: 0.3s;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #45a049;  /* Slightly darker on hover */
+        transform: scale(1.05);     /* Add a subtle hover effect */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 def safe_append(sheet, rows):
     with lock:  # ensure only one write at a time
         try:
@@ -92,9 +111,9 @@ if "trips_df" not in st.session_state:
 with st.form("add_trip_form"):
     col1, col2, col3, col4 = st.columns([3,3,1,2])
     with col1:
-        from_loc = st.text_input("From")
+        from_loc = st.text_input("From: (City, Country)")
     with col2:
-        to_loc = st.text_input("To")
+        to_loc = st.text_input("To: (City, Country)")
     with col3:
         roundtrip = st.checkbox("Roundtrip")
     with col4:
@@ -109,7 +128,7 @@ with st.form("add_trip_form"):
 
 # --- Display and delete trips ---
 if not st.session_state.trips_df.empty:
-    st.subheader("Trips added:")
+    st.subheader("Your Trips:")
     for i, row in st.session_state.trips_df.iterrows():
         cols = st.columns([3, 3, 1, 2, 1])
         cols[0].write("From: "+row["From"])
@@ -188,7 +207,7 @@ def calc_co2(row):
     return pd.Series([float(A[0]), float(A[1]), float(B[0]), float(B[1]), float(distance*co2_rate)])
 
 # --- Submit new trips ---
-if st.button("Submit all trips"):
+if st.button("Submit Your Trips"):
     if st.session_state.trips_df.empty:
         st.warning("Please add at least one trip before submitting!")
     else:
@@ -223,7 +242,7 @@ if not all_records.empty:
     trees_needed = math.ceil(total_co2 / kg_per_tree)
 
     # --- 1️⃣ Metric for total CO₂ ---
-    st.metric("Total CO₂ Emitted (kg)", f"{total_co2:,.0f}")
+    st.metric("Total CO₂ Emitted (kg) at the Institute", f"{total_co2:,.0f}")
 
     # --- 2️⃣ Tree emoji visualization ---
     st.metric(f"Trees needed to offset: ", f"{trees_needed:,.0f}")

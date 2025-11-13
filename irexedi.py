@@ -237,7 +237,7 @@ if not all_records.empty:
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required.")
         montroyals = math.ceil(1/(trees_needed*((0.01)/(750*10))))
-        st.write(f"This is equivalent to about 1/{montroyals} Mont Royals forests!")
+        st.write(f"This is equivalent to about 1/{montroyals} Mont Royal forests!")
 
     geod = Geod(ellps="WGS84")
 

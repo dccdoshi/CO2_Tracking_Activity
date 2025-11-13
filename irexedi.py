@@ -116,8 +116,10 @@ if not st.session_state.trips_df.empty:
         cols[2].write("✅" if row["Roundtrip"] else "❌")
         cols[3].write(row["Mode"])
         if cols[4].button("🗑️", key=f"delete_{i}"):
-            st.session_state.trips_df = st.session_state.trips_df.drop(i).reset_index(drop=True)
-            st.session_state["refresh"] = not st.session_state.get("refresh", False)
+            st.session_state.trips_df.drop(i, inplace=True)
+            st.session_state.trips_df.reset_index(drop=True, inplace=True)
+            st.session_state.delete_trigger += 1  # force rerun
+            st.experimental_rerun()
 else:
     st.info("No trips added yet.")
 

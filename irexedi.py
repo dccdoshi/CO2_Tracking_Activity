@@ -20,20 +20,21 @@ import threading
 lock = threading.Lock()
 
 # Inject custom CSS to make the button larger
+# Custom CSS only for the submit button
 st.markdown("""
     <style>
-    div.stButton > button:first-child {
-        background-color: #4CAF50;  /* Optional: green color */
+    div[data-testid="submit-trips-button"] button {
+        background-color: #4CAF50;
         color: white;
-        padding: 1em 2em;           /* Make it larger */
-        font-size: 18px;            /* Increase text size */
-        border-radius: 10px;        /* Rounded corners */
+        padding: 1em 2em;
+        font-size: 18px;
+        border-radius: 10px;
         border: none;
         transition: 0.3s;
     }
-    div.stButton > button:first-child:hover {
-        background-color: #45a049;  /* Slightly darker on hover */
-        transform: scale(1.05);     /* Add a subtle hover effect */
+    div[data-testid="submit-trips-button"] button:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -207,25 +208,31 @@ def calc_co2(row):
     return pd.Series([float(A[0]), float(A[1]), float(B[0]), float(B[1]), float(distance*co2_rate)])
 
 # --- Submit new trips ---
-if st.button("Submit Your Trips"):
-    if st.session_state.trips_df.empty:
-        st.warning("Please add at least one trip before submitting!")
-    else:
-        timestamp = datetime.now().isoformat()
-        df = st.session_state.trips_df.copy()
-        df["Role"] = role
-        df["Timestamp"] = timestamp
-        df[['From_lat', 'From_long', 'To_lat', 'To_long', 'CO2_kg']]  = df.apply(calc_co2, axis=1)
+submit_col = st.container()
+with submit_col:
+    submit_placeholder = st.empty()
+    with submit_placeholder.container():
+        submit_html = '<div data-testid="submit-trips-button"></div>'
+        st.markdown(submit_html, unsafe_allow_html=True)
+        if st.button("Submit Your Trips", key="submit_trips"):
+            if st.session_state.trips_df.empty:
+                st.warning("Please add at least one trip before submitting!")
+            else:
+                timestamp = datetime.now().isoformat()
+                df = st.session_state.trips_df.copy()
+                df["Role"] = role
+                df["Timestamp"] = timestamp
+                df[['From_lat', 'From_long', 'To_lat', 'To_long', 'CO2_kg']]  = df.apply(calc_co2, axis=1)
 
 
-        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
-        safe_append(sheet, rows)
+                rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
+                safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
-        
+                st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
+                
 
-        # Clear local trips
-        st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
+                # Clear local trips
+                st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
 
 
 # --- Fetch all data from Google Sheet for plotting ---

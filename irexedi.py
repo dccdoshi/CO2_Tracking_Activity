@@ -32,10 +32,6 @@ st.markdown("""
         border: none;
         transition: 0.3s;
     }
-    div[data-testid="submit-trips-button"] button:hover {
-        background-color: #45a049;
-        transform: scale(1.05);
-    }
     </style>
 """, unsafe_allow_html=True)
 

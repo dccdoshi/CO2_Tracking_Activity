@@ -94,7 +94,7 @@ def connect_to_gsheet():
     client = gspread.authorize(creds)
     return client.open_by_key(SHEET_KEY).sheet1
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=5)
 def load_all_records():
     sheet = connect_to_gsheet()
     return pd.DataFrame(sheet.get_all_records())

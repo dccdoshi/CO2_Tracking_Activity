@@ -181,7 +181,7 @@ if st.button("Submit all trips"):
         df[['From_lat', 'From_long', 'To_lat', 'To_long', 'CO2_kg']]  = df.apply(calc_co2, axis=1)
 
 
-        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
+        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
 
         st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")

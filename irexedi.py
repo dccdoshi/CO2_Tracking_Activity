@@ -167,7 +167,7 @@ def calc_co2(row):
         co2_rate = 0.1
     if row["Roundtrip"]:
         distance *= 2
-    return distance * co2_rate
+    return A, B, distance * co2_rate
 
 # --- Submit new trips ---
 if st.button("Submit all trips"):
@@ -178,7 +178,12 @@ if st.button("Submit all trips"):
         df = st.session_state.trips_df.copy()
         df["Role"] = role
         df["Timestamp"] = timestamp
-        df["CO2_kg"] = df.apply(calc_co2, axis=1)
+        A, B, co2kg  = df.apply(calc_co2, axis=1)
+        df['From_lat'] = A[0]
+        df['From_long'] = A[1]
+        df['To_lat'] = B[0]
+        df['To_long'] = B[1]
+        df["CO2_kg"] = co2kg
 
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode","CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
@@ -260,8 +265,8 @@ if not all_records.empty:
 
     for idx, row in all_records.iterrows():
 
-        A = city_coords.get(row["From"])
-        B = city_coords.get(row["To"])
+        A = (row["From_lat"], row["From_long"])#city_coords.get(row["From"])
+        B = (row["To_lat"], row["To_long"])
         if A is None or B is None:
             try:
                 if A is None:

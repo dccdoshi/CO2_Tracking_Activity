@@ -124,8 +124,8 @@ if not st.session_state.trips_df.empty:
 else:
     st.info("No trips added yet.")
 
-st.subheader("Trips added (this session)")
-st.dataframe(st.session_state.trips_df)
+# st.subheader("Trips added (this session)")
+# st.dataframe(st.session_state.trips_df)
 
 # --- CO₂ factors ---
 co2_factors = {

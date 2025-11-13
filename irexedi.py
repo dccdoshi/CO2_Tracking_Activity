@@ -21,19 +21,23 @@ lock = threading.Lock()
 
 # Inject custom CSS to make the button larger
 # Custom CSS only for the submit button
-st.markdown("""
-    <style>
-    div[data-testid="submit-trips-button"] button {
-        background-color: #4CAF50;
-        color: green;
-        padding: 5em 5em;
-        font-size: 25px;
-        border-radius: 10px;
-        border: none;
-        transition: 0.3s;
-    }
-    </style>
-""", unsafe_allow_html=True)
+if st.markdown("""
+    <form action="#" method="post">
+        <button type="submit" style="
+            padding: 1em 2em;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        ">
+            Submit Your Trips
+        </button>
+    </form>
+""", unsafe_allow_html=True):
+    # This won't trigger Python code directly.
+    pass
 
 def safe_append(sheet, rows):
     with lock:  # ensure only one write at a time
@@ -130,7 +134,7 @@ if not st.session_state.trips_df.empty:
         cols = st.columns([3, 3, 1, 2, 1])
         cols[0].write("From: "+row["From"])
         cols[1].write("To: "+row["To"])
-        cols[2].write("Roudtrip: ✅" if row["Roundtrip"] else "Roundtrip: ❌")
+        cols[2].write("Roudtrip: Yes" if row["Roundtrip"] else "Roundtrip: No")
         cols[3].write(row["Mode"])
         if cols[4].button("🗑️", key=f"delete_{i}"):
             st.session_state.trips_df.drop(i, inplace=True)
@@ -204,31 +208,25 @@ def calc_co2(row):
     return pd.Series([float(A[0]), float(A[1]), float(B[0]), float(B[1]), float(distance*co2_rate)])
 
 # --- Submit new trips ---
-submit_col = st.container()
-with submit_col:
-    submit_placeholder = st.empty()
-    with submit_placeholder.container():
-        submit_html = '<div data-testid="submit-trips-button"></div>'
-        st.markdown(submit_html, unsafe_allow_html=True)
-        if st.button("Submit Your Trips", key="submit_trips"):
-            if st.session_state.trips_df.empty:
-                st.warning("Please add at least one trip before submitting!")
-            else:
-                timestamp = datetime.now().isoformat()
-                df = st.session_state.trips_df.copy()
-                df["Role"] = role
-                df["Timestamp"] = timestamp
-                df[['From_lat', 'From_long', 'To_lat', 'To_long', 'CO2_kg']]  = df.apply(calc_co2, axis=1)
+if st.button("Submit Your Trips", key="submit_trips"):
+    if st.session_state.trips_df.empty:
+        st.warning("Please add at least one trip before submitting!")
+    else:
+        timestamp = datetime.now().isoformat()
+        df = st.session_state.trips_df.copy()
+        df["Role"] = role
+        df["Timestamp"] = timestamp
+        df[['From_lat', 'From_long', 'To_lat', 'To_long', 'CO2_kg']]  = df.apply(calc_co2, axis=1)
 
 
-                rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
-                safe_append(sheet, rows)
+        rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
+        safe_append(sheet, rows)
 
-                st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
-                
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
+        
 
-                # Clear local trips
-                st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
+        # Clear local trips
+        st.session_state.trips_df = pd.DataFrame(columns=["From", "To", "Roundtrip", "Mode"])
 
 
 # --- Fetch all data from Google Sheet for plotting ---

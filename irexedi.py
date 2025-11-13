@@ -25,9 +25,9 @@ st.markdown("""
     <style>
     div[data-testid="submit-trips-button"] button {
         background-color: #4CAF50;
-        color: white;
-        padding: 1em 2em;
-        font-size: 18px;
+        color: green;
+        padding: 5em 5em;
+        font-size: 25px;
         border-radius: 10px;
         border: none;
         transition: 0.3s;

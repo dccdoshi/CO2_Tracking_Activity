@@ -120,7 +120,7 @@ if not st.session_state.trips_df.empty:
             st.session_state.trips_df.drop(i, inplace=True)
             st.session_state.trips_df.reset_index(drop=True, inplace=True)
             st.session_state.delete_trigger += 1  # force rerun
-            st.experimental_rerun()
+            st.rerun()
 else:
     st.info("No trips added yet.")
 

@@ -21,23 +21,24 @@ lock = threading.Lock()
 
 # Inject custom CSS to make the button larger
 # Custom CSS only for the submit button
-if st.markdown("""
-    <form action="#" method="post">
-        <button type="submit" style="
-            padding: 1em 2em;
-            font-size: 18px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        ">
-            Submit Your Trips
-        </button>
-    </form>
-""", unsafe_allow_html=True):
-    # This won't trigger Python code directly.
-    pass
+st.markdown("""
+    <style>
+    /* Select the button by its unique key */
+    div.stButton > button[data-baseweb*="submit_trips"] {
+        padding: 1em 2em;
+        font-size: 18px;
+        border-radius: 8px;
+        background-color: #4CAF50;  /* optional */
+        color: white;               /* optional */
+        border: none;
+        cursor: pointer;
+    }
+    div.stButton > button[data-baseweb*="submit_trips"]:hover {
+        background-color: #45a049; /* optional hover effect */
+        transform: scale(1.05);
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 def safe_append(sheet, rows):
     with lock:  # ensure only one write at a time

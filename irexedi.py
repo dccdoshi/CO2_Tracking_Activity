@@ -112,9 +112,9 @@ if not st.session_state.trips_df.empty:
     st.subheader("Trips added:")
     for i, row in st.session_state.trips_df.iterrows():
         cols = st.columns([3, 3, 1, 2, 1])
-        cols[0].write(row["From"])
-        cols[1].write(row["To"])
-        cols[2].write("✅" if row["Roundtrip"] else "❌")
+        cols[0].write("From: "+row["From"])
+        cols[1].write("To: "+row["To"])
+        cols[2].write("Roudtrip: ✅" if row["Roundtrip"] else "Roundtrip: ❌")
         cols[3].write(row["Mode"])
         if cols[4].button("🗑️", key=f"delete_{i}"):
             st.session_state.trips_df.drop(i, inplace=True)

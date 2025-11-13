@@ -34,7 +34,7 @@ st.markdown("""
         cursor: pointer;
     }
     div.stButton > button[data-baseweb*="submit_trips"]:hover {
-        background-color: #45a049; /* optional hover effect */
+        background-color: green; /* optional hover effect */
         transform: scale(1.05);
     }
     </style>

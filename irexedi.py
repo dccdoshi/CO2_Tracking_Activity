@@ -56,7 +56,8 @@ def get_city_coords(city):
 
     return None
 
-
+if "delete_trigger" not in st.session_state:
+    st.session_state.delete_trigger = 0  # used to force rerun on delete
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Travel")
 

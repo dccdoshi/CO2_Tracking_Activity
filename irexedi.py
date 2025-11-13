@@ -25,10 +25,10 @@ st.markdown("""
     <style>
     /* Select the button by its unique key */
     div.stButton > button[data-baseweb*="submit_trips"] {
-        padding: 1em 2em;
-        font-size: 18px;
+        padding: 10em 10em;
+        font-size: 20px;
         border-radius: 8px;
-        background-color: #4CAF50;  /* optional */
+        background-color: green;  /* optional */
         color: white;               /* optional */
         border: none;
         cursor: pointer;

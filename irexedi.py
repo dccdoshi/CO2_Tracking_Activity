@@ -167,7 +167,7 @@ def calc_co2(row):
         co2_rate = 0.1
     if row["Roundtrip"]:
         distance *= 2
-    return pd.Series([A[0], A[1], B[0], B[1], distance*co2_rate])
+    return pd.Series([float(A[0]), float(A[1]), float(B[0]), float(B[1]), float(distance*co2_rate)])
 
 # --- Submit new trips ---
 if st.button("Submit all trips"):

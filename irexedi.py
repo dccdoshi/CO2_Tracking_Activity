@@ -105,8 +105,6 @@ with st.form("add_trip_form"):
             st.session_state.trips_df,
             pd.DataFrame([{"From": from_loc, "To": to_loc, "Roundtrip": roundtrip, "Mode": mode}])
         ], ignore_index=True)
-        st.session_state["refresh"] = not st.session_state.get("refresh", False)
-        st.stop()
 
 # --- Display and delete trips ---
 if not st.session_state.trips_df.empty:
@@ -120,7 +118,6 @@ if not st.session_state.trips_df.empty:
         if cols[4].button("🗑️", key=f"delete_{i}"):
             st.session_state.trips_df = st.session_state.trips_df.drop(i).reset_index(drop=True)
             st.session_state["refresh"] = not st.session_state.get("refresh", False)
-            st.stop()
 else:
     st.info("No trips added yet.")
 

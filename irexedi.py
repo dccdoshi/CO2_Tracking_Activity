@@ -19,27 +19,6 @@ import threading
 
 lock = threading.Lock()
 
-# Inject custom CSS to make the button larger
-# Custom CSS only for the submit button
-st.markdown("""
-    <style>
-    /* Select the button by its unique key */
-    div.stButton > button[data-baseweb*="submit_trips"] {
-        padding: 10em 10em;
-        font-size: 20px;
-        border-radius: 8px;
-        background-color: green;  /* optional */
-        color: white;               /* optional */
-        border: none;
-        cursor: pointer;
-    }
-    div.stButton > button[data-baseweb*="submit_trips"]:hover {
-        background-color: green; /* optional hover effect */
-        transform: scale(1.05);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 def safe_append(sheet, rows):
     with lock:  # ensure only one write at a time
         try:
@@ -256,7 +235,9 @@ if not all_records.empty:
     for i in range(rows):
         st.write("🌳" * min(80, scaled_trees - i * 80))
     if trees_needed > max_trees_display:
-        st.write(f"…and {trees_needed - max_trees_display} more trees required")
+        st.write(f"…and {trees_needed - max_trees_display} more trees required.")
+        montroyals = trees_needed*1e-6
+        st.write(f"This is equivalent to about {montroyals} Mont Royals!")
 
     geod = Geod(ellps="WGS84")
 

@@ -202,7 +202,7 @@ if st.button("Submit Your Trips", key="submit_trips"):
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum(),2))+"kg")
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+"tonnes. For reference the average Canadian has a contribution of 14.87 CO2 tonnes/year.")
         
 
         # Clear local trips
@@ -236,8 +236,14 @@ if not all_records.empty:
         st.write("🌳" * min(80, scaled_trees - i * 80))
     if trees_needed > max_trees_display:
         st.write(f"…and {trees_needed - max_trees_display} more trees required.")
-        montroyals = math.ceil(1/(trees_needed*((0.01)/(750*10))))
-        st.write(f"This is equivalent to about 1/{montroyals} Mont Royal forests!")
+        montroyals = round(1/(trees_needed*((0.01)/(750*10))))
+        if montroyals ==0:
+            montroyals = round(trees_needed*((0.01)/(750*10)))
+            st.write(f"This is equivalent to about {montroyals} Mont Royal forests!")
+        else:
+            st.write(f"This is equivalent to about 1/{montroyals} Mont Royal forests!")
+    
+        
 
     geod = Geod(ellps="WGS84")
 

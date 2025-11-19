@@ -181,7 +181,7 @@ def calc_co2(row):
     # Calculate distance (in kilometers)
     distance = geodesic(A, B).kilometers
     co2_rate = co2_factors.get(row["Mode"])
-    if distance>1000 and row["Mode"]=="Plane":
+    if distance>3500 and row["Mode"]=="Plane":
         co2_rate = 0.1
     if row["Roundtrip"]:
         distance *= 2

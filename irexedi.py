@@ -182,7 +182,7 @@ def calc_co2(row):
     distance = geodesic(A, B).kilometers
     co2_rate = co2_factors.get(row["Mode"])
     if distance>3500 and row["Mode"]=="Plane":
-        co2_rate = 0.1
+        co2_rate = 0.18
     if row["Roundtrip"]:
         distance *= 2
     return pd.Series([float(A[0]), float(A[1]), float(B[0]), float(B[1]), float(distance*co2_rate)])

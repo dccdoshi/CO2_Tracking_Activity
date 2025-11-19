@@ -202,7 +202,7 @@ if st.button("Submit Your Trips", key="submit_trips"):
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].values[0],2))+"kg")
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum(),2))+"kg")
         
 
         # Clear local trips

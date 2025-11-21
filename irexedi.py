@@ -202,7 +202,7 @@ if st.button("Submit Your Trips", key="submit_trips"):
         rows = df[["Timestamp","Role","From","To","Roundtrip","Mode",'From_lat', 'From_long', 'To_lat', 'To_long',"CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+" tonnes. For reference the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
         
 
         # Clear local trips
@@ -223,10 +223,10 @@ if not all_records.empty:
     trees_needed = math.ceil(total_co2 / kg_per_tree)
 
     # --- 1️⃣ Metric for total CO₂ ---
-    st.metric("Total CO₂ Emitted (kg) at the Institute", f"{total_co2:,.0f}")
+    st.metric("Total CO₂ Emitted (kg) from IREX", f"{total_co2:,.0f}")
 
     # --- 2️⃣ Tree emoji visualization ---
-    st.metric(f"Trees needed to offset: ", f"{trees_needed:,.0f}")
+    st.metric(f"Trees needed to offset the entire institute's emissions: ", f"{trees_needed:,.0f}")
     # For readability, scale if very high
     max_trees_display = 1200
     scaled_trees = min(trees_needed, max_trees_display)

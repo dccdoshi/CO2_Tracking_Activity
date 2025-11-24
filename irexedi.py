@@ -377,8 +377,8 @@ if not all_records.empty:
     colors = [role_colors.get(role, "gray") for role in co2_per_role["Role"]]
 
     # Bar chart
-    axes[0].bar(co2_per_role["Role"], co2_per_role["CO2_kg"], color=colors)
-    axes[0].set_ylabel("CO₂ Emissions (kg)")
+    axes[0].bar(co2_per_role["Role"], co2_per_role["CO2_kg"]/1000, color=colors)
+    axes[0].set_ylabel("CO₂ Emissions (tonnes)")
     axes[0].set_title("Total CO₂ per Role (Bar Chart)")
     axes[0].tick_params(axis='x', rotation=45)
 

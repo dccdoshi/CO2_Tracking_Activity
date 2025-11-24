@@ -13,7 +13,21 @@ import time
 import threading
 
 lock = threading.Lock()
+telescope_colors = {
+    # Space telescopes (blue–purple tones)
+    "JWST": "#3B4CC0",          # deep blue
+    "HST": "#5E61D1",           # violet-blue
+    "Kepler": "#7B77E5",        # medium purple
+    "Spitzer": "#A48CF0",       # light lavender
+    "TESS": "#C6A8FF",          # pale purple
 
+    # Ground telescopes (green–orange tones)
+    "VLT": "#1B9E77",           # teal green
+    "Gemini-South/Gemini North": "#66A856",  # medium green
+    "CFHT": "#A6D854",          # light green
+    "ESO 3.6": "#F6C141",       # warm yellow-orange
+    "Keck": "#E66101",          # orange
+}
 def safe_append(sheet, rows):
     with lock:  # ensure only one write at a time
         try:
@@ -107,18 +121,46 @@ if st.button("Submit Your Observations", key="submit_obs"):
         timestamp = datetime.now().isoformat()
         
         df = st.session_state.trips_df.copy()
-        df[['CO2_kg']]  = df.apply(co2_from_obs, axis=1)
+        df[['CO2_tonnes']]  = df.apply(co2_from_obs, axis=1)
         df["Timestamp"] = timestamp 
 
-        rows = df[["Timestamp","Telescope","Hours","CO2_kg"]].values.tolist()
+        rows = df[["Timestamp","Telescope","Hours","CO2_tonnes"]].values.tolist()
         safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_tonnes"].sum(),2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
         
 
         # Clear local trips
-        st.session_state.trips_df = pd.DataFrame(columns=["Timestamp", "Telescope", "Hours", "CO2_kg"])
+        st.session_state.trips_df = pd.DataFrame(columns=["Timestamp", "Telescope", "Hours", "CO2_tonnes"])
 
 
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = load_all_records()
+if not all_records.empty:
+    co2_per_role = all_records.groupby("Telescope")["CO2_tonnes"].sum().reset_index()
+
+    # --- Create subplots ---
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    colors = [telescope_colors.get(role, "gray") for role in co2_per_role["Role"]]
+
+    # Bar chart
+    axes[0].bar(co2_per_role["Telescope"], co2_per_role["CO2_tonnes"], color=colors)
+    axes[0].set_ylabel("CO₂ Emissions (tonnes)")
+    axes[0].set_title("Total CO₂ per Telescope (Bar Chart)")
+    axes[0].tick_params(axis='x', rotation=45)
+
+    # Pie chart
+    axes[1].pie(
+        co2_per_role["CO2_tonnes"],
+        labels=co2_per_role["Telescope"],
+        autopct="%1.1f%%",
+        colors=colors,
+        startangle=90,
+        counterclock=False
+    )
+    axes[1].set_title("CO₂ Emission Share per Role (Pie Chart)")
+
+    plt.tight_layout()
+    st.pyplot(fig, use_container_width=True)
+else:
+    st.info("No observations submitted yet.")

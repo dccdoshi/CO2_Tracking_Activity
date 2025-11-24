@@ -141,7 +141,7 @@ if not all_records.empty:
 
     # --- Create subplots ---
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    colors = [telescope_colors.get(role, "gray") for role in co2_per_role["Role"]]
+    colors = [telescope_colors.get(role, "gray") for role in co2_per_role["Telescope"]]
 
     # Bar chart
     axes[0].bar(co2_per_role["Telescope"], co2_per_role["CO2_tonnes"], color=colors)

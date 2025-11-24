@@ -224,7 +224,7 @@ if not all_records.empty:
     trees_needed = math.ceil(total_co2 / kg_per_tree)
 
     # --- 1️⃣ Metric for total CO₂ ---
-    st.metric("Total CO₂ Emitted (kg) from IREX", f"{total_co2:,.0f}")
+    st.metric("Total CO₂ Emitted (tonnes) from IREX", f"{total_co2/1000:,.0f}")
 
     # --- 2️⃣ Tree emoji visualization ---
     st.metric(f"Trees needed to offset the entire institute's emissions: ", f"{trees_needed:,.0f}")

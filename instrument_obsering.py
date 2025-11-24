@@ -41,7 +41,8 @@ if "delete_trigger" not in st.session_state:
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("🔭 Institute-Wide CO2 Emissions from Observing 🔭")
 st.text("On this webpage, we will calculate the CO2 emissions from our telescope use. Here you input all of the new observations you took this year.\
- You will pick a telescope and enter how long your observation was. Once you have added all of your observations be sure to submit them!")
+ You will pick a telescope and enter how long your observation was. Once you have added all of your observations be sure to submit them! These estimates were\
+ taken from Knödlseder et al. 2022. ")
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1iKFaS57XbMItrd4IyNfe5uADxeZq2ZTBaf2dT3zFbQU"

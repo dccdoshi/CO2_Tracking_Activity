@@ -28,14 +28,13 @@ def safe_append(sheet, rows):
 if "delete_trigger" not in st.session_state:
     st.session_state.delete_trigger = 0  # used to force rerun on delete
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
-st.title("Institute-Wide CO2 Emissions from Travel")
-
-# --- Role selection ---
-role = st.selectbox("Your Role", ["Professor", "Postdoc", "Grad Student", "Staff"])
+st.title("Institute-Wide CO2 Emissions from Observing")
+st.text("On this webpage, we will calculate the CO2 emissions from our telescope use. Here you input all of the new observations you took this year.\
+ You will pick a telescope and enter how long your observation was. If your telescope is not listed, please pick other and then enter a rough estimate for what\
+    you think the CO2 contribution is.")
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1iKFaS57XbMItrd4IyNfe5uADxeZq2ZTBaf2dT3zFbQU"
-
 def connect_to_gsheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -48,6 +47,7 @@ def connect_to_gsheet():
 def load_all_records():
     sheet = connect_to_gsheet()
     return pd.DataFrame(sheet.get_all_records())
+sheet = connect_to_gsheet()
 
 if "trips_df" not in st.session_state:
     st.session_state.trips_df = pd.DataFrame(columns=["Telescope", "Hours"])
@@ -56,7 +56,7 @@ if "trips_df" not in st.session_state:
 with st.form("add_trip_form"):
     col1, col2, col3, col4 = st.columns([3,3,1,2])
     with col1:
-        from_loc = st.selectbox("Choose a Telescope",['ESO 3.6m'])
+        from_loc = st.selectbox("Choose a Telescope",['JWST','HST','Kepler','Spitzer','TESS','VLT','Gemini-South/Gemini-North','CFHT','ESO 3.6','Keck'])
     with col2:
         to_loc = st.text_input("Hours: ")
 
@@ -81,4 +81,46 @@ if not st.session_state.trips_df.empty:
             st.session_state.delete_trigger += 1  # force rerun
             st.rerun()
 else:
-    st.info("No trips added yet.")
+    st.info("No observations added yet.")
+
+co2_factors = {
+    "JWST": 13.69863014,
+    "HST": 4.185692542,
+    "Kepler": 0.9236197592,
+    "Spitzer": 1.116928552,
+    "TESS": 0.4392465753,
+    "VLT": 6.160445205,
+    "Gemini-South/Gemini-North": 1.110502283,
+    "CFHT": 0.9701940639,
+    "ESO 3.6": 0.9087671233,
+    "Keck": 0.375,
+}
+# --- Function to calculate CO₂ per row ---
+def co2_from_obs(row):
+    tel = row['Telescope']
+    hour = row['Hours']
+    co2_rate = co2_factors.get(row["Telescope"])
+    return pd.Series([float(hour*co2_rate)])
+
+# --- Submit new trips ---
+if st.button("Submit Your Observations", key="submit_obs"):
+    if st.session_state.trips_df.empty:
+        st.warning("Please add at least one observation before submitting!")
+    else:
+        timestamp = datetime.now().isoformat()
+        df = st.session_state.trips_df.copy()
+        df[['CO2_kg']]  = df.apply(co2_from_obs, axis=1)
+
+
+        rows = df[["Timestamp","Telescope","Hour","CO2_kg"]].values.tolist()
+        safe_append(sheet, rows)
+
+        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
+        
+
+        # Clear local trips
+        st.session_state.trips_df = pd.DataFrame(columns=["Timestamp", "Telescope", "Hour", "CO2_kg"])
+
+
+# --- Fetch all data from Google Sheet for plotting ---
+all_records = load_all_records()

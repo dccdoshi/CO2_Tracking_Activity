@@ -311,7 +311,7 @@ if not all_records.empty:
         arc_lats = [A[0]] + [p[1] for p in intermediate] + [B[0]]
 
         color = role_colors.get(row["Role"], "gray")
-        width = max(1, row["count"] * 0.5)
+        width = max(3, row["count"] * 0.5)
 
         fig.add_trace(go.Scattergeo(
             lon=arc_lons,
@@ -329,7 +329,7 @@ if not all_records.empty:
             lon=[A[1], B[1]],
             lat=[A[0], B[0]],
             mode="markers",
-            marker=dict(size=5, color=color, line=dict(width=1, color="white")),
+            marker=dict(size=10, color=color, line=dict(width=1, color="white")),
             hoverinfo="text",
             text=[f"{row['From']} ({row['Role']})", f"{row['To']} ({row['Role']})"],
             showlegend=False

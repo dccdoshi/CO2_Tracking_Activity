@@ -136,6 +136,31 @@ if st.button("Submit Your Observations", key="submit_obs"):
 # --- Fetch all data from Google Sheet for plotting ---
 all_records = load_all_records()
 if not all_records.empty:
+    total_co2 = sum(all_records["CO2_tonnes"])
+        # --- CO₂ offset parameters ---
+    kg_per_tree = 21  # average CO₂ absorbed per tree per year
+    trees_needed = math.ceil(total_co2*1000 / kg_per_tree)
+
+    # --- 1️⃣ Metric for total CO₂ ---
+    st.metric("Total CO₂ Emitted (tonnes) from IREX", f"{total_co2:,.0f}")
+
+    # --- 2️⃣ Tree emoji visualization ---
+    st.metric(f"Trees needed to offset the entire institute's emissions: ", f"{trees_needed:,.0f}")
+    # For readability, scale if very high
+    max_trees_display = 1200
+    scaled_trees = min(trees_needed, max_trees_display)
+    rows = math.ceil(scaled_trees / 80)
+
+    for i in range(rows):
+        st.write("🌳" * min(80, scaled_trees - i * 80))
+    if trees_needed > max_trees_display:
+        st.write(f"…and {trees_needed - max_trees_display} more trees required.")
+        montroyals = round(1/(trees_needed*((0.01)/(750*10))))
+        if montroyals ==0:
+            montroyals = round(trees_needed*((0.01)/(750*10)))
+            st.write(f"This is equivalent to about {montroyals} Mont Royal forests!")
+        else:
+            st.write(f"This is equivalent to about 1/{montroyals} Mont Royal forests!")
     co2_per_role = all_records.groupby("Telescope")["CO2_tonnes"].sum().reset_index()
     # Define which telescopes are space vs ground
     space_telescopes = {"JWST", "HST", "Kepler", "Spitzer", "TESS"}

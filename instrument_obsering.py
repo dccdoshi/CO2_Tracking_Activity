@@ -166,7 +166,7 @@ if not all_records.empty:
         co2_per_role["CO2_tonnes"],
         labels=co2_per_role["Telescope"],
         colors=colors,
-        startangle=90,
+        startangle=45,
         counterclock=False
     )
     axes[1].set_title("CO₂ Emission Share per Telescope")

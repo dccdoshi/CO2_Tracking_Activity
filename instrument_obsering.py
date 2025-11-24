@@ -105,9 +105,10 @@ if st.button("Submit Your Observations", key="submit_obs"):
         st.warning("Please add at least one observation before submitting!")
     else:
         timestamp = datetime.now().isoformat()
+        
         df = st.session_state.trips_df.copy()
         df[['CO2_kg']]  = df.apply(co2_from_obs, axis=1)
-
+        df["Timestamp"] = timestamp 
 
         rows = df[["Timestamp","Telescope","Hour","CO2_kg"]].values.tolist()
         safe_append(sheet, rows)

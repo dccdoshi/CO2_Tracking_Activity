@@ -110,14 +110,14 @@ if st.button("Submit Your Observations", key="submit_obs"):
         df[['CO2_kg']]  = df.apply(co2_from_obs, axis=1)
         df["Timestamp"] = timestamp 
 
-        rows = df[["Timestamp","Telescope","Hour","CO2_kg"]].values.tolist()
+        rows = df[["Timestamp","Telescope","Hours","CO2_kg"]].values.tolist()
         safe_append(sheet, rows)
 
         st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_kg"].sum()/1000,2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
         
 
         # Clear local trips
-        st.session_state.trips_df = pd.DataFrame(columns=["Timestamp", "Telescope", "Hour", "CO2_kg"])
+        st.session_state.trips_df = pd.DataFrame(columns=["Timestamp", "Telescope", "Hours", "CO2_kg"])
 
 
 # --- Fetch all data from Google Sheet for plotting ---

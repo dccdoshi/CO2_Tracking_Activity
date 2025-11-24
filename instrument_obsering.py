@@ -165,7 +165,6 @@ if not all_records.empty:
     axes[1].pie(
         co2_per_role["CO2_tonnes"],
         labels=co2_per_role["Telescope"],
-        autopct="%1f%%",
         colors=colors,
         startangle=90,
         counterclock=False

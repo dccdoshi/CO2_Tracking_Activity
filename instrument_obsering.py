@@ -4,13 +4,10 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-from pyproj import Geod
+
 import requests
 
 import streamlit as st
-import plotly.graph_objects as go
 import math
 import time
 import threading
@@ -58,10 +55,10 @@ with st.form("add_trip_form"):
     with col1:
         from_loc = st.selectbox("Choose a Telescope",['JWST','HST','Kepler','Spitzer','TESS','VLT','Gemini-South/Gemini-North','CFHT','ESO 3.6','Keck'])
     with col2:
-        to_loc = st.text_input("Hours: ")
+        to_loc = st.text_input("Hours of Observation: ")
 
     
-    submitted = st.form_submit_button("Add Trip")
+    submitted = st.form_submit_button("Add Observation")
     if submitted:
         st.session_state.trips_df = pd.concat([
             st.session_state.trips_df,
@@ -73,8 +70,8 @@ if not st.session_state.trips_df.empty:
     st.subheader("Your Observations:")
     for i, row in st.session_state.trips_df.iterrows():
         cols = st.columns([3, 3, 1, 2, 1])
-        cols[0].write("From: "+row["Telescope"])
-        cols[1].write("To: "+row["Hours"])
+        cols[0].write("Telescope: "+row["Telescope"])
+        cols[1].write("Hours of Observation: "+row["Hours"])
         if cols[4].button("🗑️", key=f"delete_{i}"):
             st.session_state.trips_df.drop(i, inplace=True)
             st.session_state.trips_df.reset_index(drop=True, inplace=True)
@@ -98,8 +95,8 @@ co2_factors = {
 # --- Function to calculate CO₂ per row ---
 def co2_from_obs(row):
     tel = row['Telescope']
-    hour = row['Hours']
-    co2_rate = co2_factors.get(row["Telescope"])
+    hour = float(row['Hours'])
+    co2_rate = co2_factors.get(tel)
     return pd.Series([float(hour*co2_rate)])
 
 # --- Submit new trips ---

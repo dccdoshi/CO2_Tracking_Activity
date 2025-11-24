@@ -42,7 +42,7 @@ st.set_page_config(page_title="Institute Travel CO2", layout="wide")
 st.title("Institute-Wide CO2 Emissions from Observing")
 st.text("On this webpage, we will calculate the CO2 emissions from our telescope use. Here you input all of the new observations you took this year.\
  You will pick a telescope and enter how long your observation was. If your telescope is not listed, please pick other and then enter a rough estimate for what\
-    you think the CO2 contribution is.")
+you think the CO2 contribution is. Once you have added all of your observations be sure to submit them!")
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1iKFaS57XbMItrd4IyNfe5uADxeZq2ZTBaf2dT3zFbQU"
@@ -127,7 +127,7 @@ if st.button("Submit Your Observations", key="submit_obs"):
         rows = df[["Timestamp","Telescope","Hours","CO2_tonnes"]].values.tolist()
         safe_append(sheet, rows)
 
-        st.success("✅ Trips submitted! Your CO2 contribution is "+str(round(df["CO2_tonnes"].sum(),2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
+        st.success("✅ Observations submitted! Your CO2 contribution is "+str(round(df["CO2_tonnes"].sum(),2))+" tonnes. For reference, the average Canadian has a contribution of 14.87 CO2 tonnes/year. To reach the goals set by the Paris Agreement of limiting warming to 2 degrees Celsius, the global average yearly emissions per capita should be 3.3 tonnes CO2 by 2030.")
         
 
         # Clear local trips
@@ -138,10 +138,23 @@ if st.button("Submit Your Observations", key="submit_obs"):
 all_records = load_all_records()
 if not all_records.empty:
     co2_per_role = all_records.groupby("Telescope")["CO2_tonnes"].sum().reset_index()
+    # Define which telescopes are space vs ground
+    space_telescopes = {"JWST", "HST", "Kepler", "Spitzer", "TESS"}
+    ground_telescopes = {"VLT", "Gemini-South/Gemini North", "CFHT", "ESO 3.6", "Keck"}
+
+    # Add a 'type' column
+    co2_per_role["type"] = co2_per_role["Telescope"].apply(
+        lambda x: "Space" if x in space_telescopes else "Ground"
+    )
+
+    # Sort: space first, then ground
+    co2_per_role = co2_per_role.sort_values("type")
+
+    # Generate colors
+    colors = [telescope_colors.get(t, "gray") for t in co2_per_role["Telescope"]]
 
     # --- Create subplots ---
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    colors = [telescope_colors.get(role, "gray") for role in co2_per_role["Telescope"]]
 
     # Bar chart
     axes[0].bar(co2_per_role["Telescope"], co2_per_role["CO2_tonnes"], color=colors)
@@ -153,12 +166,12 @@ if not all_records.empty:
     axes[1].pie(
         co2_per_role["CO2_tonnes"],
         labels=co2_per_role["Telescope"],
-        autopct="%1.1f%%",
+        autopct="%1f%%",
         colors=colors,
         startangle=90,
         counterclock=False
     )
-    axes[1].set_title("CO₂ Emission Share per Role (Pie Chart)")
+    axes[1].set_title("CO₂ Emission Share per Telescope")
 
     plt.tight_layout()
     st.pyplot(fig, use_container_width=True)

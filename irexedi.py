@@ -59,8 +59,9 @@ def get_city_coords(city):
 if "delete_trigger" not in st.session_state:
     st.session_state.delete_trigger = 0  # used to force rerun on delete
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
-st.title("Institute-Wide CO2 Emissions from Travel")
-
+st.title("🌎 Institute-Wide CO2 Emissions from Travel 🌎")
+st.text("On this webpage, we will calculate the CO2 emissions from our work-related travel. Here you input all of the work related travel you did this year.\
+Once you have added all of your trips be sure to submit them!")
 # --- Role selection ---
 role = st.selectbox("Your Role", ["Professor", "Postdoc", "Grad Student", "Staff"])
 

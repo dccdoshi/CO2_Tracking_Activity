@@ -23,7 +23,7 @@ telescope_colors = {
 
     # Ground telescopes (green–orange tones)
     "VLT": "#1B9E77",           # teal green
-    "Gemini-South/Gemini North": "#66A856",  # medium green
+    "Gemini": "#66A856",  # medium green
     "CFHT": "#A6D854",          # light green
     "ESO 3.6": "#F6C141",       # warm yellow-orange
     "Keck": "#E66101",          # orange
@@ -39,10 +39,9 @@ def safe_append(sheet, rows):
 if "delete_trigger" not in st.session_state:
     st.session_state.delete_trigger = 0  # used to force rerun on delete
 st.set_page_config(page_title="Institute Travel CO2", layout="wide")
-st.title("Institute-Wide CO2 Emissions from Observing")
+st.title("🔭 Institute-Wide CO2 Emissions from Observing 🔭")
 st.text("On this webpage, we will calculate the CO2 emissions from our telescope use. Here you input all of the new observations you took this year.\
- You will pick a telescope and enter how long your observation was. If your telescope is not listed, please pick other and then enter a rough estimate for what\
-you think the CO2 contribution is. Once you have added all of your observations be sure to submit them!")
+ You will pick a telescope and enter how long your observation was. Once you have added all of your observations be sure to submit them!")
 
 # --- Google Sheets connection ---
 SHEET_KEY = "1iKFaS57XbMItrd4IyNfe5uADxeZq2ZTBaf2dT3zFbQU"
@@ -67,7 +66,7 @@ if "trips_df" not in st.session_state:
 with st.form("add_trip_form"):
     col1, col2, col3, col4 = st.columns([3,3,1,2])
     with col1:
-        from_loc = st.selectbox("Choose a Telescope",['JWST','HST','Kepler','Spitzer','TESS','VLT','Gemini-South/Gemini-North','CFHT','ESO 3.6','Keck'])
+        from_loc = st.selectbox("Choose a Telescope",['JWST','HST','Kepler','Spitzer','TESS','VLT','Gemini','CFHT','ESO 3.6','Keck'])
     with col2:
         to_loc = st.text_input("Hours of Observation: ")
 
@@ -101,7 +100,7 @@ co2_factors = {
     "Spitzer": 1.116928552,
     "TESS": 0.4392465753,
     "VLT": 6.160445205,
-    "Gemini-South/Gemini-North": 1.110502283,
+    "Gemini": 1.110502283,
     "CFHT": 0.9701940639,
     "ESO 3.6": 0.9087671233,
     "Keck": 0.375,
@@ -140,7 +139,7 @@ if not all_records.empty:
     co2_per_role = all_records.groupby("Telescope")["CO2_tonnes"].sum().reset_index()
     # Define which telescopes are space vs ground
     space_telescopes = {"JWST", "HST", "Kepler", "Spitzer", "TESS"}
-    ground_telescopes = {"VLT", "Gemini-South/Gemini North", "CFHT", "ESO 3.6", "Keck"}
+    ground_telescopes = {"VLT", "Gemini", "CFHT", "ESO 3.6", "Keck"}
 
     # Add a 'type' column
     co2_per_role["type"] = co2_per_role["Telescope"].apply(
